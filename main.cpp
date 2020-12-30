@@ -5,9 +5,22 @@
 
 using namespace std;
 
+namespace othello {
+
 enum piece_color {
     white, black, none
 };
+
+string to_string(piece_color c) {
+    switch (c)
+    {
+    case white: return "white";
+    case black: return "black";
+    case none: return "none";
+    default:
+        return "??";
+    }
+}
 
 piece_color opposite(piece_color c)
 {
@@ -44,7 +57,7 @@ pos next_pos(const pos &p, direction d) {
     }
 }
 
-class othello_board {
+class game {
     int size;
     vector<piece_color> board;
     piece_color next_player;
@@ -73,7 +86,7 @@ class othello_board {
     }
 
 public:
-    othello_board(int s=10)
+    game(int s=10)
         : size(s), board(s * s)
     {
         init();
@@ -193,8 +206,9 @@ public:
     }
 };
 
+}
 
-void print_othello_board(const othello_board &board, piece_color pc=none)
+void print_othello_board(const othello::game &board, othello::piece_color pc=othello::none)
 {
     cout << "  ";
     for (int x = 0; x < board.get_size(); x++)
@@ -204,17 +218,17 @@ void print_othello_board(const othello_board &board, piece_color pc=none)
     for (int y = 0; y < board.get_size(); y++) {
         cout << y << " ";
         for (int x = 0; x < board.get_size(); x++) {
-            pos p = {x,y};
+            othello::pos p = {x,y};
             switch (board[p])
             {
-            case white:
+            case othello::white:
                 cout << "X";
                 break;
-            case black:
+            case othello::black:
                 cout << "O";
                 break;          
             default:
-                if (pc != none && board.can_play(pc, p)) {
+                if (pc != othello::none && board.can_play(pc, p)) {
                     cout << "!";
                 } else {
                     cout << ".";
@@ -227,34 +241,34 @@ void print_othello_board(const othello_board &board, piece_color pc=none)
 
 int main()
 {
-    othello_board board(4);
+    othello::game game(4);
 
     while (1) {
-        if (!board.is_possible_to_play(board.player())) {
-            if (!board.is_possible_to_play(opposite(board.player())))
+        if (!game.is_possible_to_play(game.player())) {
+            if (!game.is_possible_to_play(opposite(game.player())))
                 break;
-            board.flip_player();
+            game.flip_player();
         }
         
-        print_othello_board(board, board.player());
+        print_othello_board(game, game.player());
 
-        pos p;
+        othello::pos p;
         while (1) {
-            cout << "[" << (board.player() == white ? "X" : "O") << "] play position x and y = " << endl;    
+            cout << "[" << (game.player() == othello::white ? "X" : "O") << "] play position x and y = " << endl;    
             cin >> p.x >> p.y;
-            if (board.can_play(board.player(), p))
+            if (game.can_play(game.player(), p))
                 break;
-            print_othello_board(board, board.player());
+            print_othello_board(game, game.player());
         }
 
-        board.place_piece(p);
+        game.place_piece(p);
     }
 
-    print_othello_board(board);
+    print_othello_board(game);
     cout << endl;
-    piece_color winner = board.winner();
-    if (winner == none)
+    othello::piece_color winner = game.winner();
+    if (winner == othello::none)
         cout << "draw" << endl;
     else
-        cout << "winner is " << (winner == white ? "white" : "black") << endl;
+        cout << "winner is " << othello::to_string(winner) << endl;
 }
