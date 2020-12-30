@@ -39,11 +39,15 @@ struct pos {
     int x, y;
 };
 
+namespace directions {
 enum direction {
     N, S, E, W
 };
 
-direction all_directions[4] = {N, S, E, W};
+direction all[4] = {N, S, E, W};
+}
+
+using namespace directions;
 
 pos next_pos(const pos &p, direction d) {
     switch (d)
@@ -148,7 +152,7 @@ public:
         if (get(p) != none)
             return false;
         
-        for (direction d : all_directions) {
+        for (direction d : directions::all) {
             if (can_piece_surround_in_direction(player, p, d))
                 return true;
         }
@@ -161,7 +165,7 @@ public:
         if (!can_play(player(), p))
             return false;
         
-        for (direction d : all_directions) {
+        for (direction d : directions::all) {
             flip_pieces_in_direction(player(), p, d);
         }
 
