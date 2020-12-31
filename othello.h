@@ -98,10 +98,14 @@ class game {
         if (opposite(player) != get(np))
             return false;
 
+        int count = 0;
         while (is_position_valid(np)) {
-            if (player == get(np)) {
-                return true;
+            if (get(np) == none) {
+                return false;
+            } else if (player == get(np)) {
+                return count > 0;
             } else {
+                count++;
                 np = next_pos(np, d);
             }
         }
