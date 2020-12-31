@@ -37,6 +37,10 @@ public:
 class random_strategy : public strategy
 {
 public:
+    random_strategy(piece_color color)
+        : strategy(color)
+    {}
+
     pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) override
     {
         int rand_pos = rand() % possible_positions.size();

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include "othello.h"
 #include "ai.h"
@@ -70,26 +71,47 @@ public:
     }
 };
 
+std::unique_ptr<othello::strategy> make_strategy_from_cin(othello::piece_color color)
+{
+    while (1)
+    {
+        unsigned int strategy_index;
+        cout << "select strategy for player in " << othello::to_string(color) << endl;
+        cout << "0 - human player" << endl;
+        cout << "1 - random strategy" << endl;
+        cin >> strategy_index;
+        switch (strategy_index)
+        {
+        case 0:
+            return move(make_unique<human_strategy>(color));
+        case 1:
+            return move(make_unique<othello::random_strategy>(color));
+        default:
+            continue; // repeat
+        }
+    }
+}
+
 int main()
 {
     othello::game game(4);
 
-    human_strategy strategy_white(othello::white);
-    human_strategy strategy_black(othello::black);
+    unique_ptr<othello::strategy> strategy_white = make_strategy_from_cin(othello::white);
+    unique_ptr<othello::strategy> strategy_black = make_strategy_from_cin(othello::black);
 
     while (1) {
         if (!game.player_can_place_any_piece(game.player())) {
             if (!game.player_can_place_any_piece(opposite(game.player())))
-                break;
+                break;strategy strategy_black(othello::black);
             game.flip_player();
         }
 
         print_othello_board(game, game.player());
         switch (game.player()) {
         case othello::white:
-            strategy_white.play(game);
+            strategy_white->play(game);
         case othello::black:
-            strategy_black.play(game);
+            strategy_black->play(game);
         }
     }
 
