@@ -238,6 +238,22 @@ public:
     void flip_player() {
         next_player = opposite(next_player);
     }
+
+    bool is_border_x(pos p) const {
+        return p.x == 0 || p.x == size - 1;
+    }
+
+    bool is_border_y(pos p) const {
+        return p.y == 0 || p.y == size - 1;
+    }
+
+    bool is_corner(pos p) const {
+        return is_border_x(p) && is_border_y(p);
+    }
+
+    bool is_border(pos p) const {
+        return is_border_x(p) || is_border_y(p);
+    }
 };
 
 }

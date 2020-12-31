@@ -77,6 +77,8 @@ std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color
         return move(make_unique<human_strategy>(color));
     case 1:
         return move(make_unique<othello::random_strategy>(color));
+    case 2:
+        return move(make_unique<othello::random_strategy_with_borders_first>(color));
     default:
         return nullptr;
     }
@@ -87,6 +89,7 @@ void print_strategy_indexes()
     cout << "select strategy for player:" << endl;
     cout << "0 - human player" << endl;
     cout << "1 - random strategy" << endl;
+    cout << "2 - corner + random strategy" << endl;
 }
 
 vector<string> argv_to_args(int argc, char* argv[])
@@ -101,7 +104,7 @@ vector<string> argv_to_args(int argc, char* argv[])
 unsigned int parse_strategy_index_arg(const string &arg)
 {
     unsigned int strategy = atoi(arg.c_str());
-    if (strategy > 2)
+    if (strategy > 3)
         strategy = 0;
     return strategy;
 }
@@ -159,22 +162,7 @@ int main(int argc, char* argv[])
     unique_ptr<othello::strategy> strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
     unique_ptr<othello::strategy> strategy_black = make_strategy_from_index(othello::black, arg_black_strategy);
 
-    while (1) {
-        if (!game.player_can_place_any_piece(game.player())) {
-            if (!game.player_can_place_any_piece(opposite(game.player())))
-                break;
-            game.flip_player();
-        }
-
-        print_othello_board(game, game.player());
-        switch (game.player()) {
-        case othello::white:
-            strategy_white->play(game);
-        case othello::black:
-            strategy_black->play(game);
-        }
-    }
-
+    othello::piece_color winner = othello::play(game, strategy_white, strategy_black);
     print_othello_board(game);
-    cout << endl << game_winner_message(game.winner()) << endl;
+    cout << endl << game_winner_message(winner) << endl;
 }
