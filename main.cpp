@@ -111,7 +111,7 @@ unsigned int parse_strategy_index_arg(const string &arg)
 
 unsigned int parse_arg_othello_board_size(const string &arg)
 {
-    unsigned int size = atoi(arg.c_str());    
+    unsigned int size = atoi(arg.c_str());
     if (size < 4)
         size = size;
     return size;
@@ -164,5 +164,6 @@ int main(int argc, char* argv[])
 
     othello::piece_color winner = othello::play(game, strategy_white, strategy_black);
     print_othello_board(game);
+
     cout << endl << game_winner_message(winner) << endl;
 }

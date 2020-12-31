@@ -265,6 +265,8 @@ protected:
     virtual pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) = 0;
 
 public:
+    static constexpr const char * description = "";
+
     strategy(piece_color color_=none)
         : color(color_)
     {}

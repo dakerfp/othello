@@ -58,15 +58,31 @@ double winrate(int n=1000, int size=10)
     return win_score / n;
 }
 
+template<typename A, typename B>
+void print_winrate_score(int n=1000, int size=10)
+{
+    cout << A::description
+        << " vs "
+        << B::description
+        << ": "
+        << winrate<A, B>()
+        << endl;
+}
+
 void test_winrate()
 {
-    cout << "random vs random = "
-        << winrate<othello::random_strategy, othello::random_strategy>()
-        << endl;
-
-    cout << "random vs random_strategy_with_borders_first = "
-        << winrate<othello::random_strategy, othello::random_strategy_with_borders_first>()
-        << endl;
+    print_winrate_score<
+        othello::random_strategy,
+        othello::random_strategy>();
+    print_winrate_score<
+        othello::random_strategy,
+        othello::random_strategy_with_borders_first>();
+    print_winrate_score<
+        othello::random_strategy,
+        othello::random_strategy_with_corners_and_borders_first>();
+    print_winrate_score<
+        othello::random_strategy_with_borders_first,
+        othello::random_strategy_with_borders_first>();
 }
 
 int main()
