@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <memory>
 
@@ -19,11 +20,48 @@ string game_winner_message(othello::piece_color winner)
         return "winner is " + othello::to_string(winner);
 }
 
+char alpha_from_index(int index)
+{
+    return 'a' + index;
+}
+
+int index_from_alpha(char alpha)
+{
+    return alpha - 'a';
+}
+
+int index_from_digit(char digit)
+{
+    return digit - '0';
+}
+
+bool parse_pos(string s, othello::pos &pos)
+{
+    cout << s << endl;
+    s.erase(remove(s.begin(), s.end(), ' '), s.end());
+    cout << s << endl;
+
+    if (s.size() != 2)
+        return false;
+
+    if (std::isalpha(s[0]) && std::isdigit(s[1])) {
+        pos.x = index_from_alpha(s[0]);
+        pos.y = index_from_digit(s[1]);
+        return true;
+    }
+    if (std::isalpha(s[1]) && std::isdigit(s[0])) {
+        pos.x = index_from_alpha(s[1]);
+        pos.y = index_from_digit(s[0]);
+        return true;
+    }
+    return false;
+}
+
 void print_othello_board(const othello::game &board, othello::piece_color pc=othello::none)
 {
     cout << "  ";
     for (int x = 0; x < board.get_size(); x++)
-        cout << x;
+        cout << alpha_from_index(x);
     cout << endl;
 
     for (int y = 0; y < board.get_size(); y++) {
@@ -60,8 +98,13 @@ public:
         othello::pos p;
         while (1) {
             print_othello_board(game, game.player());
-            cout << "[" << to_symbol(game.player()) << "] play position x and y = " << endl;
-            cin >> p.x >> p.y;
+            cout << "[" << to_symbol(game.player()) << "] play position:" << endl;
+
+            string s;
+            getline(cin, s);
+            if (!parse_pos(s, p))
+                continue;
+
             if (game.can_play(p))
                 break;
         }
