@@ -132,7 +132,7 @@ unsigned int arg_othello_board_size = 10;
 bool parse_args(vector<string> args)
 {
     for (int i = 0; i < args.size(); i++) {
-        if (string(args[i]) == "help") {
+        if (args[i] == "help" || args[i] == "--help" || args[i] == "-h") {
             return true;
         }
         if (args[i] == "--white" || args[i] == "-w") {
