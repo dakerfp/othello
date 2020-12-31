@@ -89,6 +89,25 @@ class game {
         }
     }
 
+    bool can_piece_surround_in_direction(piece_color player, const pos &p, direction d) const
+    {
+        pos np = next_pos(p, d);
+        if (!is_position_valid(np))
+            return false;
+
+        if (opposite(player) != get(np))
+            return false;
+
+        while (is_position_valid(np)) {
+            if (player == get(np)) {
+                return true;
+            } else {
+                np = next_pos(np, d);
+            }
+        }
+        return false;
+    }
+
 public:
     game(int s=10)
         : size(s), board(s * s)
@@ -125,26 +144,7 @@ public:
         return p.x >= 0 && p.x < size && p.y >= 0 && p.y < size;
     }
 
-    bool can_piece_surround_in_direction(piece_color player, const pos &p, direction d) const
-    {
-        pos np = next_pos(p, d);
-        if (!is_position_valid(np))
-            return false;
-        
-        if (opposite(player) != get(np))
-            return false;
-        
-        while (is_position_valid(np)) {
-            if (player == get(np)) {
-                return true;
-            } else {
-                np = next_pos(np, d);
-            }
-        }
-        return false;
-    }
-
-    bool can_play(piece_color player, const pos &p) const
+    bool can_play(const pos &p, piece_color player_=none) const
     {
         if (!is_position_valid(p))
             return false;
@@ -152,8 +152,11 @@ public:
         if (get(p) != none)
             return false;
         
+        if (player_ == none)
+            player_ = player();
+
         for (direction d : directions::all) {
-            if (can_piece_surround_in_direction(player, p, d))
+            if (can_piece_surround_in_direction(player_, p, d))
                 return true;
         }
 
@@ -162,7 +165,7 @@ public:
 
     bool place_piece(const pos &p)
     {
-        if (!can_play(player(), p))
+        if (!can_play(p))
             return false;
         
         for (direction d : directions::all)
@@ -175,23 +178,42 @@ public:
         return true;
     }
 
-    bool is_possible_to_play(piece_color c) const
+    std::vector<pos> possible_place_positions() const
+    {
+        std::vector<pos> possible_positions;
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                pos p = {x, y};
+                if (can_play(p))
+                    possible_positions.push_back(p);
+            }
+        }
+        return possible_positions;
+    }
+
+    bool player_can_place_any_piece(piece_color pc) const
     {
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
                 pos p = {x, y};
-                if (can_play(c, p))
+                if (can_play(p, pc))
                     return true;
             }
         }
         return false;
     }
 
-    int count_pieces(piece_color c) const {
+    bool is_game_over() const
+    {
+        return !player_can_place_any_piece(player()) &&
+            !player_can_place_any_piece(opposite(player()));
+    }
+
+    int count_pieces(piece_color pc) const {
         int count = 0;
         for (int y = 0; y < size; y++)
             for (int x = 0; x < size; x++)
-                if (get({x,y})== c)
+                if (get({x,y})== pc)
                     count++;
         return count;
     }
@@ -229,17 +251,30 @@ void print_othello_board(const othello::game &board, othello::piece_color pc=oth
                 break;
             case othello::black:
                 cout << "O";
-                break;          
+                break;
             default:
-                if (pc != othello::none && board.can_play(pc, p)) {
+                if (pc != othello::none && board.can_play(p, pc)) {
                     cout << "!";
                 } else {
                     cout << ".";
-                }                
+                }
             }
         }
         cout << endl;
     }
+}
+
+string to_symbol(othello::piece_color pc)
+{
+    return othello::white ? "X" : "O";
+}
+
+string game_winner_message(othello::piece_color winner)
+{
+    if (winner == othello::none)
+        return "draw";
+    else
+        return "winner is " + othello::to_string(winner);
 }
 
 int main()
@@ -247,8 +282,8 @@ int main()
     othello::game game(4);
 
     while (1) {
-        if (!game.is_possible_to_play(game.player())) {
-            if (!game.is_possible_to_play(opposite(game.player())))
+        if (!game.player_can_place_any_piece(game.player())) {
+            if (!game.player_can_place_any_piece(opposite(game.player())))
                 break;
             game.flip_player();
         }
@@ -257,9 +292,9 @@ int main()
 
         othello::pos p;
         while (1) {
-            cout << "[" << (game.player() == othello::white ? "X" : "O") << "] play position x and y = " << endl;    
+            cout << "[" << to_symbol(game.player()) << "] play position x and y = " << endl;
             cin >> p.x >> p.y;
-            if (game.can_play(game.player(), p))
+            if (game.can_play(p))
                 break;
             print_othello_board(game, game.player());
         }
@@ -268,10 +303,5 @@ int main()
     }
 
     print_othello_board(game);
-    cout << endl;
-    othello::piece_color winner = game.winner();
-    if (winner == othello::none)
-        cout << "draw" << endl;
-    else
-        cout << "winner is " << othello::to_string(winner) << endl;
+    cout << endl << game_winner_message(game.winner()) << endl;
 }
