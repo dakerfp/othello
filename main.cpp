@@ -71,25 +71,33 @@ public:
 
 std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color color, unsigned int index)
 {
-    switch (index)
-    {
+    switch (index) {
     case 0:
         return move(make_unique<human_strategy>(color));
     case 1:
         return move(make_unique<othello::random_strategy>(color));
     case 2:
         return move(make_unique<othello::random_strategy_with_borders_first>(color));
+    case 3:
+        return move(make_unique<othello::random_strategy_with_corners_and_borders_first>(color));
     default:
         return nullptr;
     }
 }
 
+template<int index, typename T>
+void print_strategy_index()
+{
+    cout << index << " - " << T::description << endl;
+}
+
 void print_strategy_indexes()
 {
     cout << "select strategy for player:" << endl;
-    cout << "0 - human player" << endl;
-    cout << "1 - random strategy" << endl;
-    cout << "2 - corner + random strategy" << endl;
+    print_strategy_index<0, human_strategy>();
+    print_strategy_index<1, othello::random_strategy>();
+    print_strategy_index<2, othello::random_strategy_with_borders_first>();
+    print_strategy_index<3, othello::random_strategy_with_corners_and_borders_first>();
 }
 
 vector<string> argv_to_args(int argc, char* argv[])
