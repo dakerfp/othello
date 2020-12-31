@@ -71,6 +71,7 @@ void print_winrate_score(int n=10000, int size=8)
 
 void benchmark_winrate()
 {
+    // compare with random
     print_winrate_score<
         othello::random_strategy,
         othello::random_strategy>();
@@ -81,8 +82,15 @@ void benchmark_winrate()
         othello::random_strategy,
         othello::random_strategy_with_corners_and_borders_first>();
     print_winrate_score<
+        othello::random_strategy,
+        othello::maximize_number_of_pieces_strategy>();
+
+    print_winrate_score<
         othello::random_strategy_with_borders_first,
         othello::random_strategy_with_corners_and_borders_first>();
+    print_winrate_score<
+        othello::random_strategy_with_corners_and_borders_first,
+        othello::maximize_number_of_pieces_strategy>();
 }
 
 int main()

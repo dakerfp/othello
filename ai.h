@@ -4,6 +4,7 @@
 #include "othello.h"
 
 #include <cstdlib>
+#include <climits>
 #include <memory>
 
 namespace othello {
@@ -63,6 +64,31 @@ public:
 
         // otherwise go with borders first
         return random_strategy_with_borders_first::choose_piece_position(g, possible_positions);
+    }
+};
+
+class maximize_number_of_pieces_strategy : public strategy
+{
+public:
+    static constexpr const char * description = "maximize number of pieces";
+
+    maximize_number_of_pieces_strategy(piece_color color=none)
+        : strategy(color)
+    {}
+
+    pos choose_piece_position(const game &o, const std::vector<pos> &possible_positions) override
+    {
+        int max_score = INT_MIN;
+        pos max_p;
+        for (pos p : possible_positions) {
+            game g = o.test_piece(p);
+            int score = g.count_pieces(player()) - g.count_pieces(opposite(player()));
+            if (score > max_score) {
+                max_score = score;
+                max_p = p;
+            }
+        }
+        return max_p;
     }
 };
 

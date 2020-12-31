@@ -187,6 +187,13 @@ public:
         return true;
     }
 
+    game test_piece(const pos &p) const
+    {
+        game g(*this);
+        g.place_piece(p);
+        return g;
+    }
+
     std::vector<pos> possible_place_positions() const
     {
         std::vector<pos> possible_positions;
