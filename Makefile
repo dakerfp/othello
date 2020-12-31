@@ -1,12 +1,14 @@
 
 CC=g++
+CXXFLAGS=-std=c++17
 
+all: test othello
 
 othello: main.cpp
-	$(CC) $< -o $@
+	$(CC) $(CXXFLAGS) $< -o $@
 
 test: test.cpp
-	$(CC) $< -o $@
+	$(CC) $(CXXFLAGS) $< -o $@
 	./test
 
 clean:

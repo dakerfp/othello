@@ -1,4 +1,7 @@
 
+#ifndef OTHELLO_H
+#define OTHELLO_H
+
 #include <string>
 #include <vector>
 
@@ -110,6 +113,11 @@ public:
         : size(s), board(s * s)
     {
         init();
+    }
+
+    game(const game& g)
+        : size(g.size), board(g.board), next_player(g.next_player)
+    {
     }
 
     piece_color player() const { return next_player; }
@@ -229,3 +237,5 @@ public:
 };
 
 }
+
+#endif // OTHELLO_H

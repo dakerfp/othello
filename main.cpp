@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "othello.h"
+#include "ai.h"
 
 using namespace std;
 
@@ -48,9 +49,33 @@ string game_winner_message(othello::piece_color winner)
         return "winner is " + othello::to_string(winner);
 }
 
+class human_strategy : public othello::strategy
+{
+public:
+    human_strategy(othello::piece_color color)
+        : othello::strategy(color)
+    {}
+
+    othello::pos choose_piece_position(const othello::game &game, const std::vector<othello::pos> &possible_positions) override
+    {
+        othello::pos p;
+        while (1) {
+            print_othello_board(game, game.player());
+            cout << "[" << to_symbol(game.player()) << "] play position x and y = " << endl;
+            cin >> p.x >> p.y;
+            if (game.can_play(p))
+                break;
+        }
+        return p;
+    }
+};
+
 int main()
 {
     othello::game game(4);
+
+    human_strategy strategy_white(othello::white);
+    human_strategy strategy_black(othello::black);
 
     while (1) {
         if (!game.player_can_place_any_piece(game.player())) {
@@ -58,19 +83,14 @@ int main()
                 break;
             game.flip_player();
         }
-        
+
         print_othello_board(game, game.player());
-
-        othello::pos p;
-        while (1) {
-            cout << "[" << to_symbol(game.player()) << "] play position x and y = " << endl;
-            cin >> p.x >> p.y;
-            if (game.can_play(p))
-                break;
-            print_othello_board(game, game.player());
+        switch (game.player()) {
+        case othello::white:
+            strategy_white.play(game);
+        case othello::black:
+            strategy_black.play(game);
         }
-
-        game.place_piece(p);
     }
 
     print_othello_board(game);
