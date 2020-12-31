@@ -165,9 +165,8 @@ public:
         if (!can_play(player(), p))
             return false;
         
-        for (direction d : directions::all) {
+        for (direction d : directions::all)
             flip_pieces_in_direction(player(), p, d);
-        }
 
         get(p) = player();
 
