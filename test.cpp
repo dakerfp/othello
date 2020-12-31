@@ -9,30 +9,30 @@ using namespace std;
 
 void test_initial_condition_and_first_placement()
 {
-    othello::game g(4);
+    othello::game g;
 
-    assert(g.get_size() == 4);
+    assert(g.get_size() == 8);
     assert(g.player() == othello::white);
 
     assert(g.count_pieces(othello::white) == 2);
     assert(g.count_pieces(othello::black) == 2);
     assert(!g.is_game_over());
 
-    assert(g.can_play({3, 1}));
+    assert(g.can_play({5, 3}));
     assert(!g.can_play({3, 3}));
 
-    g.place_piece({3, 1});
+    g.place_piece({5, 3});
 
-    assert(!g.can_play({3, 1}));
+    assert(!g.can_play({5, 3}));
     assert(g.player() == othello::black);
     assert(g.count_pieces(othello::white) == 4);
     assert(g.count_pieces(othello::black) == 1);
 }
 
 template<typename A, typename B>
-double winrate(int n=1000, int size=8)
+double winrate(int n=1000)
 {
-    othello::game game(size);
+    othello::game game;
     double win_score = 0;
     unique_ptr<othello::strategy> a = make_unique<A>();
     unique_ptr<othello::strategy> b = make_unique<B>();
@@ -59,7 +59,7 @@ double winrate(int n=1000, int size=8)
 }
 
 template<typename A, typename B>
-void print_winrate_score(int n=10000, int size=8)
+void print_winrate_score(int n=10000)
 {
     cout << A::description
         << " vs "

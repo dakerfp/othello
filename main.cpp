@@ -160,17 +160,8 @@ unsigned int parse_strategy_index_arg(const string &arg)
     return strategy;
 }
 
-unsigned int parse_arg_othello_board_size(const string &arg)
-{
-    unsigned int size = atoi(arg.c_str());
-    if (size < 4)
-        size = size;
-    return size;
-}
-
 unsigned int arg_white_strategy = 0;
 unsigned int arg_black_strategy = 0;
-unsigned int arg_othello_board_size = 8;
 
 bool parse_args(vector<string> args)
 {
@@ -192,12 +183,6 @@ bool parse_args(vector<string> args)
                 return false;
             }
             arg_black_strategy = parse_strategy_index_arg(args[++i]);
-        } else if (args[i] == "--size" || args[i] == "-s") {
-            if (i + 1 == args.size()) {
-                cerr << "size argument requires a number" << endl;
-                return false;
-            }
-            arg_othello_board_size = parse_arg_othello_board_size(args[++i]);
         }
     }
     return true;
@@ -209,7 +194,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    othello::game game(arg_othello_board_size);
+    othello::game game;
     unique_ptr<othello::strategy> strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
     unique_ptr<othello::strategy> strategy_black = make_strategy_from_index(othello::black, arg_black_strategy);
 

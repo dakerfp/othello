@@ -8,7 +8,9 @@
 namespace othello {
 
 enum piece_color {
-    white, black, none
+    none = 0,
+    white = 1 << 0,
+    black = 1 << 1
 };
 
 std::string to_string(piece_color c) {
@@ -61,20 +63,57 @@ pos next_pos(const pos &p, direction d) {
     }
 }
 
-class game {
-    int size;
-    std::vector<piece_color> board;
-    piece_color next_player;
+typedef unsigned long long int uint64;
 
-    piece_color &get(const pos &p)
+class board8x8 {
+private:
+    uint64 whites;
+    uint64 blacks;
+
+    static int index_from_pos(const pos &p)
     {
-        return board[p.y * size + p.x];
+        return p.y * 8 + p.x;
+    }
+
+public:
+    board8x8()
+        : whites(0), blacks(0)
+    {}
+
+    board8x8(const board8x8 &b)
+        : whites(b.whites), blacks(b.blacks)
+    {}
+
+    void reset()
+    {
+        whites = blacks = 0;
     }
 
     piece_color get(const pos &p) const
     {
-        return board[p.y * size + p.x];
+        int index = index_from_pos(p);
+        uint64 white_bit = (whites >> index) & 0x01;
+        uint64 black_bit = (blacks >> index) & 0x01;
+        return piece_color(white_bit | (black_bit << 1));
     }
+
+    void set(const pos &p, piece_color c)
+    {
+        int index = index_from_pos(p);
+        if (c == white) {
+            whites |= uint64(1) << index;
+            blacks &= ~(uint64(1) << index);
+        } else { // XXX ignore none
+            blacks |= uint64(1) << index;
+            whites &= ~(uint64(1) << index);
+        }
+    }
+};
+
+class game {
+    const int size = 8;
+    board8x8 board;
+    piece_color next_player;
 
     void flip_pieces_in_direction(piece_color player, const pos &p, direction d)
     {
@@ -83,9 +122,9 @@ class game {
 
         // flip pieces
         for (pos np = next_pos(p, d);
-            is_position_valid(np) && get(np) == opposite(player);
+            is_position_valid(np) && board.get(np) == opposite(player);
             np = next_pos(np, d)) {
-            get(np) = player;
+            board.set(np, player);
         }
     }
 
@@ -95,14 +134,14 @@ class game {
         if (!is_position_valid(np))
             return false;
 
-        if (opposite(player) != get(np))
+        if (opposite(player) != board.get(np))
             return false;
 
         int count = 0;
         while (is_position_valid(np)) {
-            if (get(np) == none) {
+            if (board.get(np) == none) {
                 return false;
-            } else if (player == get(np)) {
+            } else if (player == board.get(np)) {
                 return count > 0;
             } else {
                 count++;
@@ -113,14 +152,13 @@ class game {
     }
 
 public:
-    game(int s=8)
-        : size(s), board(s * s)
+    game()
     {
         init();
     }
 
     game(const game& g)
-        : size(g.size), board(g.board), next_player(g.next_player)
+        : board(g.board), next_player(g.next_player)
     {
     }
 
@@ -128,15 +166,13 @@ public:
 
     void init()
     {
-        for (int y = 0; y < size; y++)
-            for (int x = 0; x < size; x++)
-                get({x,y}) = none;
+        board.reset();
         
         // populate middle pieces
-        get({size/2-1,size/2-1}) = white;
-        get({size/2,size/2}) = white;
-        get({size/2,size/2-1}) = black;
-        get({size/2-1,size/2}) = black;
+        board.set({3,3}, white);
+        board.set({4,4}, white);
+        board.set({3,4}, black);
+        board.set({4,3}, black);
 
         next_player = white;
     }
@@ -145,7 +181,7 @@ public:
 
     piece_color operator[](const pos &p) const
     {
-        return board[p.y * size + p.x];
+        return board.get(p);
     }
 
     bool is_position_valid(const pos &p) const
@@ -158,7 +194,7 @@ public:
         if (!is_position_valid(p))
             return false;
         
-        if (get(p) != none)
+        if (board.get(p) != none)
             return false;
         
         if (player_ == none)
@@ -180,7 +216,7 @@ public:
         for (direction d : directions::all)
             flip_pieces_in_direction(player(), p, d);
 
-        get(p) = player();
+        board.set(p, player());
 
         flip_player();
 
@@ -229,7 +265,7 @@ public:
         int count = 0;
         for (int y = 0; y < size; y++)
             for (int x = 0; x < size; x++)
-                if (get({x,y})== pc)
+                if (board.get({x,y})== pc)
                     count++;
         return count;
     }
