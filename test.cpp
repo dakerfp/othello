@@ -30,7 +30,7 @@ void test_initial_condition_and_first_placement()
 }
 
 template<typename A, typename B>
-double winrate(int n=1000, int size=10)
+double winrate(int n=1000, int size=8)
 {
     othello::game game(size);
     double win_score = 0;
@@ -59,7 +59,7 @@ double winrate(int n=1000, int size=10)
 }
 
 template<typename A, typename B>
-void print_winrate_score(int n=1000, int size=10)
+void print_winrate_score(int n=10000, int size=8)
 {
     cout << A::description
         << " vs "

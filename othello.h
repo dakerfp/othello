@@ -113,7 +113,7 @@ class game {
     }
 
 public:
-    game(int s=10)
+    game(int s=8)
         : size(s), board(s * s)
     {
         init();

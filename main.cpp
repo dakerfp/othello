@@ -170,7 +170,7 @@ unsigned int parse_arg_othello_board_size(const string &arg)
 
 unsigned int arg_white_strategy = 0;
 unsigned int arg_black_strategy = 0;
-unsigned int arg_othello_board_size = 10;
+unsigned int arg_othello_board_size = 8;
 
 bool parse_args(vector<string> args)
 {
