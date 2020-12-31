@@ -17,11 +17,11 @@ protected:
     virtual pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) = 0;
 
 public:
-    strategy(piece_color color_)
+    strategy(piece_color color_=none)
         : color(color_)
     {}
+    virtual void reset(piece_color color_) { color = color_; }
     piece_color player() const { return color; }
-    void set_piece_color(piece_color pc) { color = pc; }
     bool play(game &g) {
         if (g.player() != player())
             return false;
@@ -40,7 +40,7 @@ public:
 class random_strategy : public strategy
 {
 public:
-    random_strategy(piece_color color)
+    random_strategy(piece_color color=none)
         : strategy(color)
     {}
 
@@ -54,7 +54,7 @@ public:
 class random_strategy_with_borders_first : public random_strategy
 {
 public:
-    random_strategy_with_borders_first(piece_color color)
+    random_strategy_with_borders_first(piece_color color=none)
         : random_strategy(color)
     {}
 
@@ -75,9 +75,9 @@ public:
     }
 };
 
-piece_color play(othello::game &game,
-    std::unique_ptr<strategy> const &strategy_white,
-    std::unique_ptr<strategy> const &strategy_black)
+piece_color play(game &game,
+    const std::unique_ptr<strategy> &strategy_white,
+    const std::unique_ptr<strategy> &strategy_black)
 {
     while (1) {
         if (!game.player_can_place_any_piece(game.player())) {
@@ -89,8 +89,10 @@ piece_color play(othello::game &game,
         switch (game.player()) {
         case othello::white:
             strategy_white->play(game);
+            break;
         case othello::black:
             strategy_black->play(game);
+            break;
         }
     }
     return game.winner();

@@ -1,6 +1,9 @@
 #include <cassert>
+#include <memory>
+#include <iostream>
 
 #include "othello.h"
+#include "ai.h"
 
 using namespace std;
 
@@ -26,7 +29,48 @@ void test_initial_condition_and_first_placement()
     assert(g.count_pieces(othello::black) == 1);
 }
 
+template<typename A, typename B>
+double winrate(int n=1000, int size=10)
+{
+    othello::game game(size);
+    double win_score = 0;
+    unique_ptr<othello::strategy> a = make_unique<A>();
+    unique_ptr<othello::strategy> b = make_unique<B>();
+
+    for (int i = 0; i < n; i++) {
+        bool swap = i % 2 != 0;
+        std::unique_ptr<othello::strategy> const &strategy_white = swap ? b : a;
+        std::unique_ptr<othello::strategy> const &strategy_black = swap ? a : b;
+        game.init();
+        strategy_white->reset(othello::white);
+        strategy_black->reset(othello::black);
+        switch (play(game, strategy_white, strategy_black)) {
+        case othello::white:
+            win_score += swap ? 0 : 1;
+            break;
+        case othello::black:
+            win_score += swap ? 1 : 0;
+            break;
+        default:
+            win_score += 0.5;
+        }
+    }
+    return win_score / n;
+}
+
+void test_winrate()
+{
+    cout << "random vs random = "
+        << winrate<othello::random_strategy, othello::random_strategy>()
+        << endl;
+
+    cout << "random vs random_strategy_with_borders_first = "
+        << winrate<othello::random_strategy, othello::random_strategy_with_borders_first>()
+        << endl;
+}
+
 int main()
 {
     test_initial_condition_and_first_placement();
+    test_winrate();
 }
