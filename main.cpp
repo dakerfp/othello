@@ -105,7 +105,7 @@ public:
             if (!parse_pos(s, p))
                 continue;
 
-            if (game.can_play(p))
+            if (game.can_play(p, game.player()))
                 break;
         }
         return p;

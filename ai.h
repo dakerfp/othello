@@ -3,6 +3,7 @@
 
 #include "othello.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <climits>
 #include <memory>
@@ -84,6 +85,59 @@ public:
             game g = o.test_piece(p);
             int score = g.count_pieces(player()) - g.count_pieces(opposite(player()));
             if (score > max_score) {
+                max_score = score;
+                max_p = p;
+            }
+        }
+        return max_p;
+    }
+};
+
+template<int MaxDepth>
+class minmax_strategy : public strategy
+{
+private:
+    int score_game_state(const game &o, int depth)
+    {
+        if (depth <= 0)
+            return o.count_pieces(player()) - o.count_pieces(opposite(player()));
+
+        if (o.is_game_over()) {
+            piece_color winner = o.winner();
+            if (winner == player())
+                return INT_MAX;
+            if (winner == opposite(player()))
+                return INT_MIN;
+            return 0;
+        }
+
+        bool maximize = o.player() == player();
+        int final_score = maximize ? INT_MIN : INT_MAX;
+        auto possible_places = o.possible_place_positions();
+        for (pos p : possible_places) {
+            int score = score_game_state(o.test_piece(p), depth - 1);
+            if (maximize) {
+                final_score = std::max(final_score, score);
+            } else {
+                final_score = std::min(final_score, score);
+            }
+        }
+        return final_score;
+    }
+public:
+    static constexpr const char * description = "minmax";
+
+    minmax_strategy(piece_color color=none)
+        : strategy(color)
+    {}
+
+    pos choose_piece_position(const game &o, const std::vector<pos> &possible_positions) override
+    {
+        int max_score = INT_MIN;
+        pos max_p;
+        for (pos p : possible_positions) {
+            int score = score_game_state(o.test_piece(p), MaxDepth);
+            if (score >= max_score) {
                 max_score = score;
                 max_p = p;
             }

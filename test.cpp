@@ -18,12 +18,14 @@ void test_initial_condition_and_first_placement()
     assert(g.count_pieces(othello::black) == 2);
     assert(!g.is_game_over());
 
-    assert(g.can_play({5, 3}));
-    assert(!g.can_play({3, 3}));
+    assert(g.can_play({5, 3}, othello::white));
+    assert(!g.can_play({5, 3}, othello::black));
+    assert(!g.can_play({3, 3}, othello::white));
 
     g.place_piece({5, 3});
 
-    assert(!g.can_play({5, 3}));
+    assert(!g.can_play({5, 3}, othello::black));
+    assert(!g.can_play({5, 3}, othello::white));
     assert(g.player() == othello::black);
     assert(g.count_pieces(othello::white) == 4);
     assert(g.count_pieces(othello::black) == 1);
@@ -84,6 +86,9 @@ void benchmark_winrate()
     print_winrate_score<
         othello::random_strategy,
         othello::maximize_number_of_pieces_strategy>();
+    print_winrate_score<
+        othello::random_strategy,
+        othello::minmax_strategy<4>>();
 
     print_winrate_score<
         othello::random_strategy_with_borders_first,
@@ -91,6 +96,9 @@ void benchmark_winrate()
     print_winrate_score<
         othello::random_strategy_with_corners_and_borders_first,
         othello::maximize_number_of_pieces_strategy>();
+    print_winrate_score<
+        othello::random_strategy_with_corners_and_borders_first,
+        othello::minmax_strategy<4>>();
 }
 
 int main()

@@ -189,16 +189,13 @@ public:
         return p.x >= 0 && p.x < size && p.y >= 0 && p.y < size;
     }
 
-    bool can_play(const pos &p, piece_color player_=none) const
+    bool can_play(const pos &p, piece_color player_) const
     {
         if (!is_position_valid(p))
             return false;
         
         if (board.get(p) != none)
             return false;
-        
-        if (player_ == none)
-            player_ = player();
 
         for (direction d : directions::all) {
             if (can_piece_surround_in_direction(player_, p, d))
@@ -210,7 +207,7 @@ public:
 
     bool place_piece(const pos &p)
     {
-        if (!can_play(p))
+        if (!can_play(p, player()))
             return false;
         
         for (direction d : directions::all)
@@ -236,7 +233,7 @@ public:
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
                 pos p = {x, y};
-                if (can_play(p))
+                if (can_play(p, player()))
                     possible_positions.push_back(p);
             }
         }

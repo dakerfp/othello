@@ -1,6 +1,6 @@
 
 CC=g++
-CXXFLAGS=-std=c++17
+CXXFLAGS=-std=c++20
 
 all: test othello
 
