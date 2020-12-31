@@ -69,7 +69,7 @@ void print_winrate_score(int n=10000, int size=8)
         << endl;
 }
 
-void test_winrate()
+void benchmark_winrate()
 {
     print_winrate_score<
         othello::random_strategy,
@@ -82,11 +82,11 @@ void test_winrate()
         othello::random_strategy_with_corners_and_borders_first>();
     print_winrate_score<
         othello::random_strategy_with_borders_first,
-        othello::random_strategy_with_borders_first>();
+        othello::random_strategy_with_corners_and_borders_first>();
 }
 
 int main()
 {
     test_initial_condition_and_first_placement();
-    test_winrate();
+    benchmark_winrate();
 }
