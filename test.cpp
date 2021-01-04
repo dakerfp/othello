@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "othello.h"
+#include "benchmark.h"
 #include "ai.h"
 
 using namespace std;
@@ -31,44 +32,6 @@ void test_initial_condition_and_first_placement()
     assert(g.count_pieces(othello::black) == 1);
 }
 
-double winrate(othello::strategy *a, othello::strategy *b, int n=1000)
-{
-    othello::game game;
-    double win_score = 0;
-
-    for (int i = 0; i < n; i++) {
-        bool swap = i % 2 != 0;
-        othello::strategy *strategy_white = swap ? b : a;
-        othello::strategy *strategy_black = swap ? a : b;
-        game.init();
-        strategy_white->reset(othello::white);
-        strategy_black->reset(othello::black);
-        switch (play(game, strategy_white, strategy_black)) {
-        case othello::white:
-            win_score += swap ? 0 : 1;
-            break;
-        case othello::black:
-            win_score += swap ? 1 : 0;
-            break;
-        default:
-            win_score += 0.5;
-        }
-    }
-    return win_score / n;
-}
-
-double print_winrate_score(othello::strategy *a, othello::strategy *b, int n=10000)
-{
-    double win = winrate(a, b, n);
-    cout << a->description()
-        << " vs "
-        << b->description()
-        << ": "
-        << win
-        << endl;
-    return win;
-}
-
 void benchmark_winrate()
 {
     othello::random_strategy random;
@@ -80,7 +43,7 @@ void benchmark_winrate()
     othello::minmax_strategy minmax2corners(othello::none, 2, othello::pieces_diff_score_with_borders_and_corners);
     othello::minmax_strategy minmax4corners(othello::none, 4, othello::pieces_diff_score_with_borders_and_corners);
 
-    othello::strategy* strategies[] = {
+    std:vector<othello::strategy *> strategies = {
         &random,
         &random_with_borders_first,
         &random_with_borders_and_corners_first,
@@ -91,18 +54,24 @@ void benchmark_winrate()
         &minmax4corners
     };
 
-    for (auto *strat1 : strategies) {
-        bool repeated = true;
-        for (auto *strat2 : strategies) {
-            if (strat1 == strat2) {
-                repeated = false;
-                continue;
-            } else if (repeated) {
-                continue;
-            }
-            double win = print_winrate_score(strat1, strat2, 100);
+    auto winmatrix = othello::winrate_matrix(strategies, 2);
+    auto acc_scores = othello::accumulate_score(winmatrix);
+
+    for (int i = 0; i < winmatrix.size(); i++) {
+        for (int j = 0; j < winmatrix.size(); j++) {
+            cout << strategies[i]->description()
+                << " vs "
+                << strategies[j]->description()
+                << ": "
+                << winmatrix[i][j]
+                << endl;
         }
         cout << "------------------------" << endl;
+    }
+
+    cout << "acccumulated scores:" << endl;
+    for (int i = 0; i < strategies.size(); i++) {
+        cout << '\t' << acc_scores[i] << "\t - " << strategies[i]->description() <<  endl;
     }
 }
 
