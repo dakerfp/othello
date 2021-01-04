@@ -6,6 +6,10 @@
 #include <vector>
 #include <numeric>
 
+#if !defined(popcount)
+#define popcount(x) __builtin_popcount(x)
+#endif
+
 namespace othello {
 
 enum piece_color {
@@ -78,12 +82,19 @@ typedef unsigned long long int uint64;
 
 class board8x8 {
 private:
+    static constexpr int size = 8;
+    static constexpr int last = 7;
     uint64 whites;
     uint64 blacks;
 
-    static int index_from_pos(const pos &p)
+    static constexpr int index_from_pos(const pos &p)
     {
-        return p.y * 8 + p.x;
+        return p.y * size + p.x;
+    }
+
+    static constexpr uint64 bit(const pos &p)
+    {
+        return 1 << index_from_pos(p);
     }
 
 public:
@@ -121,11 +132,11 @@ public:
     }
 
     constexpr int count_whites(uint64 mask=~0) const {
-        return std::popcount(whites & mask);
+        return popcount((unsigned long long) (whites & mask));
     }
 
     constexpr int count_blacks(uint64 mask=~0) const {
-        return std::popcount(blacks & mask);
+        return popcount((unsigned long long) (blacks & mask));
     }
 
     int count(piece_color pc) const {
