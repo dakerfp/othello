@@ -13,7 +13,7 @@ namespace othello {
 class random_strategy : public strategy
 {
 public:
-    static constexpr const char * description = "random";
+    std::string description() const override { return "random"; }
 
     random_strategy(piece_color color=none)
         : strategy(color)
@@ -29,7 +29,7 @@ public:
 class random_strategy_with_borders_first : public random_strategy
 {
 public:
-    static constexpr const char * description = "random with borders first";
+    std::string description() const override { return "random with borders first"; }
 
     random_strategy_with_borders_first(piece_color color=none)
         : random_strategy(color)
@@ -50,7 +50,7 @@ public:
 class random_strategy_with_corners_and_borders_first : public random_strategy_with_borders_first
 {
 public:
-    static constexpr const char * description = "random with corners and borders first";
+    std::string description() const override { return "random with corners and borders first"; }
 
     random_strategy_with_corners_and_borders_first(piece_color color=none)
         : random_strategy_with_borders_first(color)
@@ -71,7 +71,7 @@ public:
 class maximize_number_of_pieces_strategy : public strategy
 {
 public:
-    static constexpr const char * description = "maximize number of pieces";
+    std::string description() const override { return "maximize number of pieces"; }
 
     maximize_number_of_pieces_strategy(piece_color color=none)
         : strategy(color)
@@ -125,7 +125,7 @@ private:
         return final_score;
     }
 public:
-    static constexpr const char * description = "minmax";
+    std::string description() const override { return std::string("minmax ") + std::to_string(MaxDepth); }
 
     minmax_strategy(piece_color color=none)
         : strategy(color)

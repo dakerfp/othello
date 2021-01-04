@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <functional>
 #include <iostream>
 #include <memory>
 
@@ -92,6 +93,8 @@ public:
     human_strategy(othello::piece_color color)
         : othello::strategy(color)
     {}
+
+    string description() const override { return "human player"; }
 
     othello::pos choose_piece_position(const othello::game &game, const std::vector<othello::pos> &possible_positions) override
     {

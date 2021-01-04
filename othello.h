@@ -305,13 +305,16 @@ protected:
     virtual pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) = 0;
 
 public:
-    static constexpr const char * description = "";
-
     strategy(piece_color color_=none)
         : color(color_)
     {}
+
+    virtual std::string description() const = 0;
+
     virtual void reset(piece_color color_) { color = color_; }
+
     piece_color player() const { return color; }
+
     bool play(game &g) {
         if (g.player() != player())
             return false;
@@ -329,8 +332,8 @@ public:
 
 
 piece_color play(game &game,
-    const std::unique_ptr<strategy> &strategy_white,
-    const std::unique_ptr<strategy> &strategy_black)
+    strategy * strategy_white,
+    strategy * strategy_black)
 {
     while (1) {
         if (!game.player_can_place_any_piece(game.player())) {

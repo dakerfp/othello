@@ -31,18 +31,15 @@ void test_initial_condition_and_first_placement()
     assert(g.count_pieces(othello::black) == 1);
 }
 
-template<typename A, typename B>
-double winrate(int n=1000)
+double winrate(othello::strategy *a, othello::strategy *b, int n=1000)
 {
     othello::game game;
     double win_score = 0;
-    unique_ptr<othello::strategy> a = make_unique<A>();
-    unique_ptr<othello::strategy> b = make_unique<B>();
 
     for (int i = 0; i < n; i++) {
         bool swap = i % 2 != 0;
-        std::unique_ptr<othello::strategy> const &strategy_white = swap ? b : a;
-        std::unique_ptr<othello::strategy> const &strategy_black = swap ? a : b;
+        othello::strategy *strategy_white = swap ? b : a;
+        othello::strategy *strategy_black = swap ? a : b;
         game.init();
         strategy_white->reset(othello::white);
         strategy_black->reset(othello::black);
@@ -60,45 +57,49 @@ double winrate(int n=1000)
     return win_score / n;
 }
 
-template<typename A, typename B>
-void print_winrate_score(int n=10000)
+double print_winrate_score(othello::strategy *a, othello::strategy *b, int n=10000)
 {
-    cout << A::description
+    double win = winrate(a, b, n);
+    cout << a->description()
         << " vs "
-        << B::description
+        << b->description()
         << ": "
-        << winrate<A, B>()
+        << win
         << endl;
+    return win;
 }
 
 void benchmark_winrate()
 {
-    // compare with random
-    print_winrate_score<
-        othello::random_strategy,
-        othello::random_strategy>();
-    print_winrate_score<
-        othello::random_strategy,
-        othello::random_strategy_with_borders_first>();
-    print_winrate_score<
-        othello::random_strategy,
-        othello::random_strategy_with_corners_and_borders_first>();
-    print_winrate_score<
-        othello::random_strategy,
-        othello::maximize_number_of_pieces_strategy>();
-    print_winrate_score<
-        othello::random_strategy,
-        othello::minmax_strategy<4>>();
+    othello::random_strategy random;
+    othello::random_strategy_with_borders_first random_with_borders_first;
+    othello::random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
+    othello::maximize_number_of_pieces_strategy max_pieces;
+    othello::minmax_strategy<2> minmax2;
+    othello::minmax_strategy<4> minmax4;
 
-    print_winrate_score<
-        othello::random_strategy_with_borders_first,
-        othello::random_strategy_with_corners_and_borders_first>();
-    print_winrate_score<
-        othello::random_strategy_with_corners_and_borders_first,
-        othello::maximize_number_of_pieces_strategy>();
-    print_winrate_score<
-        othello::random_strategy_with_corners_and_borders_first,
-        othello::minmax_strategy<4>>();
+    othello::strategy* strategies[] = {
+        &random,
+        &random_with_borders_first,
+        &random_with_borders_and_corners_first,
+        &max_pieces,
+        &minmax2,
+        &minmax4,
+    };
+
+    for (auto *strat1 : strategies) {
+        bool repeated = true;
+        for (auto *strat2 : strategies) {
+            if (strat1 == strat2) {
+                repeated = false;
+                continue;
+            } else if (repeated) {
+                continue;
+            }
+            double win = print_winrate_score(strat1, strat2, 100);
+        }
+        cout << "------------------------" << endl;
+    }
 }
 
 int main()
