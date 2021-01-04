@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <numeric>
 
 namespace othello {
 
@@ -116,6 +117,23 @@ public:
         } else { // XXX ignore none
             blacks |= uint64(1) << index;
             whites &= ~(uint64(1) << index);
+        }
+    }
+
+    constexpr int count_whites(uint64 mask=~0) const {
+        return std::popcount(whites & mask);
+    }
+
+    constexpr int count_blacks(uint64 mask=~0) const {
+        return std::popcount(blacks & mask);
+    }
+
+    int count(piece_color pc) const {
+        switch (pc) {
+        case white: return count_whites();
+        case black: return count_blacks();
+        case none: return sizeof(uint64) - count_whites() - count_blacks();
+        default: return none;
         }
     }
 };
@@ -277,9 +295,17 @@ public:
         return count;
     }
 
+    constexpr int count_whites(uint64 mask=~0) const {
+        return board.count_whites(mask);
+    }
+
+    constexpr int count_blacks(uint64 mask=~0) const {
+        return board.count_blacks(mask);
+    }
+
     piece_color winner() const {
-        int pw = count_pieces(white);
-        int pb = count_pieces(black);
+        int pw = count_whites();
+        int pb = count_blacks();
         if (pb == pw)
             return none;
         return pw > pb ? white : black;
