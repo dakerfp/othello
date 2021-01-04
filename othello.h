@@ -54,6 +54,7 @@ piece_color opposite(piece_color c)
 
 struct pos {
     int x, y;
+    bool operator==(const pos &o) const { return x == o.x && y == o.y; }
 };
 
 namespace directions {

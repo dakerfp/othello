@@ -1,3 +1,4 @@
+
 #include <cassert>
 #include <memory>
 #include <iostream>
@@ -5,6 +6,7 @@
 #include "othello.h"
 #include "benchmark.h"
 #include "ai.h"
+#include "io.h"
 
 using namespace std;
 
@@ -17,6 +19,7 @@ void test_initial_condition_and_first_placement()
 
     assert(g.count_pieces(othello::white) == 2);
     assert(g.count_pieces(othello::black) == 2);
+    assert(g.count_pieces(othello::none) == 8 * 8 - 4);
     assert(!g.is_game_over());
 
     assert(g.can_play({5, 3}, othello::white));
@@ -30,6 +33,15 @@ void test_initial_condition_and_first_placement()
     assert(g.player() == othello::black);
     assert(g.count_pieces(othello::white) == 4);
     assert(g.count_pieces(othello::black) == 1);
+    assert(g.count_pieces(othello::none) == 8 * 8 - 5);
+}
+
+void test_parse_game_positions()
+{
+    vector<othello::pos> positions = othello::io::parse_game_positions("a1 b2 c3 d4 e5 f6 g7 h8");
+    assert(positions.size() == 8);
+    for (unsigned i = 0; i < positions.size(); i++)
+        assert(positions[i] == othello::pos(i, i));
 }
 
 void test_benchmark_winrate()
@@ -66,5 +78,6 @@ void test_benchmark_winrate()
 int main()
 {
     test_initial_condition_and_first_placement();
+    test_parse_game_positions();
     test_benchmark_winrate();
 }
