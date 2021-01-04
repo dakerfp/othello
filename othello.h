@@ -132,7 +132,7 @@ public:
     }
 
     constexpr int count_whites(uint64 mask=~0) const {
-        return popcount((unsigned long long) (whites & mask));
+        return popcount(whites & mask);
     }
 
     constexpr int count_blacks(uint64 mask=~0) const {

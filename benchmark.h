@@ -19,7 +19,7 @@ double winrate(strategy *a, strategy *b, unsigned n)
 
     assert(n % 2 == 0);
 
-    for (int i = 0; i < n; i++) {
+    for (unsigned i = 0; i < n; i++) {
         bool swap = i % 2 != 0;
         strategy *strategy_white = swap ? b : a;
         strategy *strategy_black = swap ? a : b;
@@ -42,16 +42,16 @@ double winrate(strategy *a, strategy *b, unsigned n)
 
 std::vector<std::vector<double>> winrate_matrix(const std::vector<strategy *> &strategies, unsigned repeat=100)
 {
-    int N = strategies.size();
+    unsigned N = strategies.size();
 
     std::vector<std::vector<double>> winrate_matrix(N);
-    for (int i = 0; i < N; i++) {
+    for (unsigned i = 0; i < N; i++) {
         winrate_matrix[i] = std::vector<double>(N);
         winrate_matrix[i][i] = 0.5;
     }
 
-    for (int i = 0; i < N; i++) {
-        for (int j = i + 1; j < N; j++) {
+    for (unsigned i = 0; i < N; i++) {
+        for (unsigned j = i + 1; j < N; j++) {
             double win = winrate(strategies[i], strategies[j], repeat);
             winrate_matrix[i][j] = win;
             winrate_matrix[j][i] = 1.0 - win;
@@ -64,7 +64,7 @@ std::vector<std::vector<double>> winrate_matrix(const std::vector<strategy *> &s
 vector<double> accumulate_score(const std::vector<std::vector<double>> &winmatrix)
 {
     vector<double> scores(winmatrix.size());
-    for (int i = 0; i < scores.size(); i++) {
+    for (unsigned i = 0; i < scores.size(); i++) {
         const vector<double> &row = winmatrix[i];
         for (auto v : row)
             scores[i] += v;

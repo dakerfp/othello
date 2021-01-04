@@ -43,7 +43,7 @@ void benchmark_winrate()
     othello::minmax_strategy minmax2corners(othello::none, 2, othello::pieces_diff_score_with_borders_and_corners);
     othello::minmax_strategy minmax4corners(othello::none, 4, othello::pieces_diff_score_with_borders_and_corners);
 
-    std:vector<othello::strategy *> strategies = {
+    vector<othello::strategy *> strategies = {
         &random,
         &random_with_borders_first,
         &random_with_borders_and_corners_first,
