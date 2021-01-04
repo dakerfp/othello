@@ -77,6 +77,8 @@ void benchmark_winrate()
     othello::maximize_score_strategy max_pieces;
     othello::minmax_strategy minmax2(othello::none, 2);
     othello::minmax_strategy minmax4(othello::none, 4);
+    othello::minmax_strategy minmax2corners(othello::none, 2, othello::pieces_diff_score_with_borders_and_corners);
+    othello::minmax_strategy minmax4corners(othello::none, 4, othello::pieces_diff_score_with_borders_and_corners);
 
     othello::strategy* strategies[] = {
         &random,
@@ -85,6 +87,8 @@ void benchmark_winrate()
         &max_pieces,
         &minmax2,
         &minmax4,
+        &minmax2corners,
+        &minmax4corners
     };
 
     for (auto *strat1 : strategies) {

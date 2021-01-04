@@ -13,6 +13,16 @@ enum piece_color {
     black = 1 << 1
 };
 
+int sign(piece_color pc) {
+    switch (pc)
+    {
+    case white: return 1;
+    case black: return -1;
+    default:
+        return 0;
+    }
+}
+
 std::string to_string(piece_color c) {
     switch (c)
     {
