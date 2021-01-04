@@ -12,32 +12,36 @@ using namespace std;
 
 namespace othello {
 
-double winrate(strategy *a, strategy *b, unsigned n)
+double wincount(strategy *strategy_white, strategy *strategy_black, unsigned n)
 {
     game game;
-    double win_score = 0;
-
-    assert(n % 2 == 0);
+    double wins = 0;
 
     for (unsigned i = 0; i < n; i++) {
-        bool swap = i % 2 != 0;
-        strategy *strategy_white = swap ? b : a;
-        strategy *strategy_black = swap ? a : b;
         game.init();
         strategy_white->reset(white);
         strategy_black->reset(black);
         switch (play(game, strategy_white, strategy_black)) {
         case white:
-            win_score += swap ? 0 : 1;
+            wins += 1;
             break;
         case black:
-            win_score += swap ? 1 : 0;
+            // win_score += 0;
             break;
         default:
-            win_score += 0.5;
+            wins += 0.5;
         }
     }
-    return win_score / n;
+    return wins;
+}
+
+double winrate(strategy *a, strategy *b, unsigned n)
+{
+    assert(n % 2 == 0);
+
+    double win_as_whites = wincount(a, b, n / 2);
+    double win_as_blacks = double(n / 2) - wincount(b, a, n / 2);
+    return (win_as_whites + win_as_blacks) / n;
 }
 
 bool better_than(strategy *a, strategy *b, unsigned n=100)
