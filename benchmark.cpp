@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <chrono>
 
 void benchmark(unsigned repeat)
 {
@@ -51,5 +52,8 @@ void benchmark(unsigned repeat)
 
 int main(int argc, const char * argv[]) {
     unsigned repeat = (argc == 2) ? strtoul(argv[1], 0, 10) : 1000;
+    auto start = std::chrono::high_resolution_clock::now();
     benchmark(repeat);
+    auto finish = std::chrono::high_resolution_clock::now();
+    cout << "elapsed time: " << (finish - start).count() << endl;
 }
