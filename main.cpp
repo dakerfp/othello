@@ -128,7 +128,7 @@ static const strategy_index strategy_indexes[] = {
     STRATEGY_ROW("random", othello::random_strategy),
     STRATEGY_ROW("borders first", othello::random_strategy_with_borders_first),
     STRATEGY_ROW("corners first", othello::random_strategy_with_corners_and_borders_first),
-    STRATEGY_ROW("minmax 4", othello::minmax_strategy<4>)
+    STRATEGY_ROW("minmax 4", othello::minmax_strategy)
 };
 
 std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color color, unsigned int index)

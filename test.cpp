@@ -74,9 +74,9 @@ void benchmark_winrate()
     othello::random_strategy random;
     othello::random_strategy_with_borders_first random_with_borders_first;
     othello::random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
-    othello::maximize_number_of_pieces_strategy max_pieces;
-    othello::minmax_strategy<2> minmax2;
-    othello::minmax_strategy<4> minmax4;
+    othello::maximize_score_strategy max_pieces;
+    othello::minmax_strategy minmax2(othello::none, 2);
+    othello::minmax_strategy minmax4(othello::none, 4);
 
     othello::strategy* strategies[] = {
         &random,

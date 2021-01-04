@@ -330,7 +330,6 @@ public:
     }
 };
 
-
 piece_color play(game &game,
     strategy * strategy_white,
     strategy * strategy_black)
