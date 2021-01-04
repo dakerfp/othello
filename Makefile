@@ -19,3 +19,4 @@ clean:
 	rm -rf *.o
 	rm -rf othello
 	rm -rf test
+	rm -rf benchmark
