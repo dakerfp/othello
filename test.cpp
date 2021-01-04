@@ -53,30 +53,9 @@ void benchmark_winrate()
         &minmax2corners,
         &minmax4corners
     };
-
-    auto winmatrix = othello::winrate_matrix(strategies, 2);
-    auto acc_scores = othello::accumulate_score(winmatrix);
-
-    for (int i = 0; i < winmatrix.size(); i++) {
-        for (int j = 0; j < winmatrix.size(); j++) {
-            cout << strategies[i]->description()
-                << " vs "
-                << strategies[j]->description()
-                << ": "
-                << winmatrix[i][j]
-                << endl;
-        }
-        cout << "------------------------" << endl;
-    }
-
-    cout << "acccumulated scores:" << endl;
-    for (int i = 0; i < strategies.size(); i++) {
-        cout << '\t' << acc_scores[i] << "\t - " << strategies[i]->description() <<  endl;
-    }
 }
 
 int main()
 {
     test_initial_condition_and_first_placement();
-    benchmark_winrate();
 }

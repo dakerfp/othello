@@ -2,7 +2,7 @@
 CC=g++
 CXXFLAGS=-std=c++20
 
-all: test othello
+all: test othello benchmark
 
 othello: main.cpp
 	$(CC) $(CXXFLAGS) $< -o $@
@@ -10,6 +10,10 @@ othello: main.cpp
 test: test.cpp
 	$(CC) $(CXXFLAGS) $< -o $@
 	./test
+
+benchmark: benchmark.cpp
+	$(CC) $(CXXFLAGS) $< -o $@
+	./benchmark
 
 clean:
 	rm -rf *.o
