@@ -115,35 +115,42 @@ public:
     }
 };
 
+struct strategy_index {
+    // char index;
+    const char * description;
+    std::function<othello::strategy*(othello::piece_color)> build;
+};
+
+#define STRATEGY_ROW(D, T) {D, [](othello::piece_color pc) { return new T(pc); }}
+
+static const strategy_index strategy_indexes[] = {
+    STRATEGY_ROW("human player (default)", human_strategy),
+    STRATEGY_ROW("random", othello::random_strategy),
+    STRATEGY_ROW("borders first", othello::random_strategy_with_borders_first),
+    STRATEGY_ROW("corners first", othello::random_strategy_with_corners_and_borders_first),
+    STRATEGY_ROW("minmax 4", othello::minmax_strategy<4>)
+};
+
 std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color color, unsigned int index)
 {
-    switch (index) {
-    case 0:
-        return move(make_unique<human_strategy>(color));
-    case 1:
-        return move(make_unique<othello::random_strategy>(color));
-    case 2:
-        return move(make_unique<othello::random_strategy_with_borders_first>(color));
-    case 3:
-        return move(make_unique<othello::random_strategy_with_corners_and_borders_first>(color));
-    default:
-        return nullptr;
-    }
-}
-
-template<int index, typename T>
-void print_strategy_index()
-{
-    cout << index << " - " << T::description << endl;
+    int i = 0;
+    for (auto sti : strategy_indexes)
+        if (i++ == index)
+            return move(unique_ptr<othello::strategy>(sti.build(color)));
+    return nullptr;
 }
 
 void print_strategy_indexes()
 {
-    cout << "select strategy for player:" << endl;
-    print_strategy_index<0, human_strategy>();
-    print_strategy_index<1, othello::random_strategy>();
-    print_strategy_index<2, othello::random_strategy_with_borders_first>();
-    print_strategy_index<3, othello::random_strategy_with_corners_and_borders_first>();
+    int i = 0;
+    for (auto sti : strategy_indexes)
+        cout << i++ << " - " << sti.description << endl;
+}
+
+void print_help()
+{
+    cout << "-b and -h arguments lets select the AI strategy for each player:" << endl;
+    print_strategy_indexes();
 }
 
 vector<string> argv_to_args(int argc, char* argv[])
@@ -170,18 +177,19 @@ bool parse_args(vector<string> args)
 {
     for (int i = 0; i < args.size(); i++) {
         if (args[i] == "help" || args[i] == "--help" || args[i] == "-h") {
-            return true;
+            print_help();
+            return false;
         }
         if (args[i] == "--white" || args[i] == "-w") {
             if (i + 1 == args.size()) {
-                cerr << "white argument requires a value" << endl;
+                cerr << "white argument requires one of the following values:" << endl;
                 print_strategy_indexes();
                 return false;
             }
             arg_white_strategy = parse_strategy_index_arg(args[++i]);
         } else if (args[i] == "--black" || args[i] == "-b") {
             if (i + 1 == args.size()) {
-                cerr << "black argument requires a value" << endl;
+                cerr << "black argument requires one of the following values:" << endl;
                 print_strategy_indexes();
                 return false;
             }
@@ -201,7 +209,7 @@ int main(int argc, char* argv[])
     unique_ptr<othello::strategy> strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
     unique_ptr<othello::strategy> strategy_black = make_strategy_from_index(othello::black, arg_black_strategy);
 
-    othello::piece_color winner = othello::play(game, strategy_white, strategy_black);
+    othello::piece_color winner = othello::play(game, strategy_white.get(), strategy_black.get());
     print_othello_board(game);
 
     cout << endl << game_winner_message(winner) << endl;
