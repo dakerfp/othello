@@ -52,14 +52,22 @@ piece_color opposite(piece_color c)
     }
 }
 
+typedef unsigned long long int uint64;
+typedef uint64 index;
+
 struct pos {
     int x, y;
     bool operator==(const pos &o) const { return x == o.x && y == o.y; }
+    index to_index() const { return y * 8 + x; }
+    static pos from_index(index i) { return {int(i) % 8, int(i) / 8}; }
 };
 
 namespace directions {
 enum direction {
-    N, S, E, W
+    N = -8,
+    S = +8,
+    E = +1,
+    W = -1
 };
 
 direction all[4] = {N, S, E, W};
@@ -67,7 +75,7 @@ direction all[4] = {N, S, E, W};
 
 using namespace directions;
 
-pos next_pos(const pos &p, direction d) {
+constexpr pos next_pos(const pos &p, direction d) {
     switch (d)
     {
     case N: return {p.x, p.y - 1};
@@ -79,13 +87,15 @@ pos next_pos(const pos &p, direction d) {
     }
 }
 
-typedef unsigned long long int uint64;
+constexpr index next_index(index i, direction d) {
+    return i + index(d);
+}
 
 namespace util {
     static constexpr int size = 8;
     static constexpr int last = 7;
 
-    static constexpr int index_from_pos(const pos &p)
+    static constexpr index index_from_pos(const pos &p)
     {
         return p.y * size + p.x;
     }
@@ -115,24 +125,43 @@ public:
         whites = blacks = 0;
     }
 
+    constexpr piece_color get(index i) const
+    {
+        uint64 white_bit = (whites >> i) & 0x01;
+        uint64 black_bit = (blacks >> i) & 0x01;
+        return piece_color(white_bit | (black_bit << 1));
+    }
+
     constexpr piece_color get(const pos &p) const
     {
         int index = util::index_from_pos(p);
-        uint64 white_bit = (whites >> index) & 0x01;
-        uint64 black_bit = (blacks >> index) & 0x01;
-        return piece_color(white_bit | (black_bit << 1));
+        return get(index);
+    }
+
+    constexpr void set_white(index i)
+    {
+        whites |= uint64(1) << i;
+        blacks &= ~(uint64(1) << i);
+    }
+
+    constexpr void set_black(index i)
+    {
+        blacks |= uint64(1) << i;
+        whites &= ~(uint64(1) << i);
+    }
+
+    constexpr void set(index i, piece_color c)
+    {
+        if (c == white) {
+            set_white(i);
+        } else { // XXX ignore none
+            set_black(i);
+        }
     }
 
     constexpr void set(const pos &p, piece_color c)
     {
-        int index = util::index_from_pos(p);
-        if (c == white) {
-            whites |= uint64(1) << index;
-            blacks &= ~(uint64(1) << index);
-        } else { // XXX ignore none
-            blacks |= uint64(1) << index;
-            whites &= ~(uint64(1) << index);
-        }
+        set(util::index_from_pos(p), c);
     }
 
     constexpr int count_whites(uint64 mask=~0) const {
@@ -257,16 +286,13 @@ public:
         return board.get(p);
     }
 
-    bool is_position_valid(const pos &p) const
+    constexpr bool is_position_valid(const pos &p) const
     {
         return p.x >= 0 && p.x < size && p.y >= 0 && p.y < size;
     }
 
-    bool can_play(const pos &p, piece_color player_) const
+    bool unchecked_can_play(const pos &p, piece_color player_) const
     {
-        if (!is_position_valid(p))
-            return false;
-        
         if (board.get(p) != none)
             return false;
 
@@ -278,11 +304,16 @@ public:
         return false;
     }
 
-    bool place_piece(const pos &p)
+    bool can_play(const pos &p, piece_color player_) const
     {
-        if (!can_play(p, player()))
+        if (!is_position_valid(p))
             return false;
         
+        return unchecked_can_play(p, player_);
+    }
+
+    bool unchecked_place_piece(const pos &p)
+    {
         for (direction d : directions::all)
             flip_pieces_in_direction(player(), p, d);
 
@@ -293,10 +324,18 @@ public:
         return true;
     }
 
+    bool place_piece(const pos &p)
+    {
+        if (!can_play(p, player()))
+            return false;
+
+        return unchecked_place_piece(p);
+    }
+
     game test_piece(const pos &p) const
     {
         game g(*this);
-        g.place_piece(p);
+        g.unchecked_place_piece(p);
         return g;
     }
 
@@ -435,7 +474,6 @@ piece_color play(game &game,
     }
     return game.winner();
 }
-
 }
 
 #endif // OTHELLO_H
