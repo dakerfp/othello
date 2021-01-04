@@ -81,12 +81,9 @@ pos next_pos(const pos &p, direction d) {
 
 typedef unsigned long long int uint64;
 
-class board8x8 {
-private:
+namespace util {
     static constexpr int size = 8;
     static constexpr int last = 7;
-    uint64 whites;
-    uint64 blacks;
 
     static constexpr int index_from_pos(const pos &p)
     {
@@ -95,8 +92,14 @@ private:
 
     static constexpr uint64 bit(const pos &p)
     {
-        return 1 << index_from_pos(p);
+        return uint64(1) << index_from_pos(p);
     }
+};
+
+class board8x8 {
+private:
+    uint64 whites;
+    uint64 blacks;
 
 public:
     board8x8()
@@ -112,17 +115,17 @@ public:
         whites = blacks = 0;
     }
 
-    piece_color get(const pos &p) const
+    constexpr piece_color get(const pos &p) const
     {
-        int index = index_from_pos(p);
+        int index = util::index_from_pos(p);
         uint64 white_bit = (whites >> index) & 0x01;
         uint64 black_bit = (blacks >> index) & 0x01;
         return piece_color(white_bit | (black_bit << 1));
     }
 
-    void set(const pos &p, piece_color c)
+    constexpr void set(const pos &p, piece_color c)
     {
-        int index = index_from_pos(p);
+        int index = util::index_from_pos(p);
         if (c == white) {
             whites |= uint64(1) << index;
             blacks &= ~(uint64(1) << index);
@@ -137,15 +140,39 @@ public:
     }
 
     constexpr int count_blacks(uint64 mask=~0) const {
-        return popcount((unsigned long long) (blacks & mask));
+        return popcount(blacks & mask);
+    }
+
+    constexpr uint64 nones() const {
+        return ~(whites | blacks);
+    }
+
+    constexpr uint64 count_nones() const {
+        return popcount(nones());
+    }
+
+    static constexpr uint64 corners_mask = util::bit({0, 0})
+        | util::bit({0, util::last})
+        | util::bit({util::last, 0})
+        | util::bit({util::last, util::last});
+
+    static constexpr uint64 border_mask() {
+        uint64 mask = 0;
+        for (int i = 1; i < util::size; i++) {
+            mask |= util::bit({0, i});
+            mask |= util::bit({util::last, i});
+            mask |= util::bit({i, 0});
+            mask |= util::bit({i, util::last});
+        }
+        return mask;
     }
 
     int count(piece_color pc) const {
         switch (pc) {
         case white: return count_whites();
         case black: return count_blacks();
-        case none: return sizeof(uint64) - count_whites() - count_blacks();
-        default: return none;
+        case none: return count_nones();
+        default: return 0;
         }
     }
 };
@@ -200,6 +227,12 @@ public:
     game(const game& g)
         : board(g.board), next_player(g.next_player)
     {
+    }
+
+    game &operator=(const game &o) {
+        board = o.board;
+        next_player = o.next_player;
+        return *this;
     }
 
     piece_color player() const { return next_player; }

@@ -40,7 +40,7 @@ double winrate(strategy *a, strategy *b, unsigned n)
     assert(n % 2 == 0);
 
     double win_as_whites = wincount(a, b, n / 2);
-    double win_as_blacks = double(n / 2) - wincount(b, a, n / 2);
+    double win_as_blacks = n / 2 - wincount(b, a, n / 2);
     return (win_as_whites + win_as_blacks) / n;
 }
 
