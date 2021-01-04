@@ -101,30 +101,25 @@ public:
     }
 };
 
+
 class minmax_strategy : public maximize_score_strategy
 {
 private:
     int max_depth;
 
-    int score_game_state(const game &o, int depth)
+    int score_game_state(const game &g, int depth)
     {
-        if (o.is_game_over()) {
-            piece_color winner = o.winner();
-            if (winner == player())
-                return INT_MAX;
-            if (winner == opposite(player()))
-                return INT_MIN;
-            return 0;
-        }
+        if (g.is_game_over())
+            return terminal_score(g, player());
 
         if (depth <= 0)
-            return score(o);
+            return score(g);
 
-        bool maximize = o.player() == player();
+        bool maximize = g.player() == player();
         int final_score = maximize ? INT_MIN : INT_MAX;
-        auto possible_places = o.possible_place_positions();
+        auto possible_places = g.possible_place_positions();
         for (pos p : possible_places) {
-            int score = score_game_state(o.test_piece(p), depth - 1);
+            int score = score_game_state(g.test_piece(p), depth - 1);
             if (maximize) {
                 final_score = std::max(final_score, score);
             } else {
@@ -140,12 +135,12 @@ public:
         : maximize_score_strategy(color, score_f), max_depth(depth)
     {}
 
-    pos choose_piece_position(const game &o, const std::vector<pos> &possible_positions) override
+    pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) override
     {
         int max_score = INT_MIN;
         pos max_p;
         for (pos p : possible_positions) {
-            int score = score_game_state(o.test_piece(p), max_depth);
+            int score = score_game_state(g.test_piece(p), max_depth);
             if (score >= max_score) {
                 max_score = score;
                 max_p = p;

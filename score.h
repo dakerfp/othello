@@ -12,6 +12,16 @@ namespace othello {
 // The opposite applies to black-negative.
 typedef std::function<int(const game &)> score_function;
 
+int terminal_score(const game &g, piece_color player)
+{
+    piece_color winner = g.winner();
+    if (winner == player)
+        return INT_MAX;
+    if (winner == opposite(player))
+        return INT_MIN;
+    return 0;
+}
+
 struct score_function_register {
     std::string description;
     const score_function &eval;
