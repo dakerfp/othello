@@ -44,9 +44,9 @@ double winrate(strategy *a, strategy *b, unsigned n)
     return (win_as_whites + win_as_blacks) / n;
 }
 
-bool better_than(strategy *a, strategy *b, unsigned n=100)
+bool better_than(strategy *a, strategy *b, double eps=0, unsigned n=100)
 {
-    return winrate(a, b, n) >= 0.5;
+    return winrate(a, b, n) >= 0.5 - eps;
 }
 
 std::vector<std::vector<double>> winrate_matrix(const std::vector<strategy *> &strategies, unsigned repeat=100)

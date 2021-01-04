@@ -67,8 +67,8 @@ void test_benchmark_winrate()
     };
 
     assert(othello::better_than(&random_with_borders_first, &random));
-    assert(othello::better_than(&random_with_borders_first, &random_with_borders_and_corners_first));
-    assert(othello::better_than(&random_with_borders_first, &max_pieces));
+    assert(othello::better_than(&random_with_borders_and_corners_first, &random_with_borders_first, 0.05)); // eps = 0.05
+    assert(othello::better_than(&max_pieces, &random_with_borders_first, 0.05)); // eps = 0.05
     assert(othello::better_than(&minmax2, &max_pieces));
     assert(othello::better_than(&minmax4, &minmax2));
     assert(othello::better_than(&minmax2corners, &minmax2));
