@@ -32,7 +32,7 @@ void test_initial_condition_and_first_placement()
     assert(g.count_pieces(othello::black) == 1);
 }
 
-void benchmark_winrate()
+void test_benchmark_winrate()
 {
     othello::random_strategy random;
     othello::random_strategy_with_borders_first random_with_borders_first;
@@ -43,7 +43,7 @@ void benchmark_winrate()
     othello::minmax_strategy minmax2corners(othello::none, 2, othello::pieces_diff_score_with_borders_and_corners);
     othello::minmax_strategy minmax4corners(othello::none, 4, othello::pieces_diff_score_with_borders_and_corners);
 
-    vector<othello::strategy *> strategies = {
+    vector<othello::strategy *> all = {
         &random,
         &random_with_borders_first,
         &random_with_borders_and_corners_first,
@@ -53,9 +53,18 @@ void benchmark_winrate()
         &minmax2corners,
         &minmax4corners
     };
+
+    assert(othello::better_than(&random_with_borders_first, &random));
+    assert(othello::better_than(&random_with_borders_first, &random_with_borders_and_corners_first));
+    assert(othello::better_than(&random_with_borders_first, &max_pieces));
+    assert(othello::better_than(&minmax2, &max_pieces));
+    assert(othello::better_than(&minmax4, &minmax2));
+    assert(othello::better_than(&minmax2corners, &minmax2));
+    assert(othello::better_than(&minmax4corners, &minmax4));
 }
 
 int main()
 {
     test_initial_condition_and_first_placement();
+    test_benchmark_winrate();
 }
