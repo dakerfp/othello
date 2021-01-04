@@ -2,10 +2,11 @@
 #include "benchmark.h"
 #include "ai.h"
 
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
-void benchmark()
+void benchmark(unsigned repeat)
 {
     othello::random_strategy random;
     othello::random_strategy_with_borders_first random_with_borders_first;
@@ -27,11 +28,11 @@ void benchmark()
         &minmax4corners
     };
 
-    auto winmatrix = othello::winrate_matrix(strategies, 2);
+    auto winmatrix = othello::winrate_matrix(strategies, repeat);
     auto acc_scores = othello::accumulate_score(winmatrix);
 
-    for (int i = 0; i < winmatrix.size(); i++) {
-        for (int j = 0; j < winmatrix.size(); j++) {
+    for (unsigned i = 0; i < winmatrix.size(); i++) {
+        for (unsigned j = 0; j < winmatrix.size(); j++) {
             std::cout << strategies[i]->description()
                 << " vs "
                 << strategies[j]->description()
@@ -43,11 +44,12 @@ void benchmark()
     }
 
     std::cout << "acccumulated scores:\n";
-    for (int i = 0; i < strategies.size(); i++) {
+    for (unsigned i = 0; i < strategies.size(); i++) {
         std::cout << '\t' << acc_scores[i] << "\t - " << strategies[i]->description() << std::endl;
     }
 }
 
-int main() {
-    benchmark();
+int main(int argc, const char * argv[]) {
+    unsigned repeat = (argc == 2) ? strtoul(argv[1], 0, 10) : 1000;
+    benchmark(repeat);
 }
