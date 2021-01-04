@@ -1,6 +1,6 @@
 
 CC=g++
-CXXFLAGS=-std=c++20
+CXXFLAGS=-std=c++20 -O3 -Wall
 
 all: test othello benchmark
 

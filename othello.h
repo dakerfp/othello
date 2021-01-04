@@ -384,6 +384,8 @@ piece_color play(game &game,
         case othello::black:
             strategy_black->play(game);
             break;
+        default:
+            break; // ignore
         }
     }
     return game.winner();

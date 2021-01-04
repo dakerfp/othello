@@ -133,7 +133,7 @@ static const strategy_index strategy_indexes[] = {
 
 std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color color, unsigned int index)
 {
-    int i = 0;
+    unsigned i = 0;
     for (auto sti : strategy_indexes)
         if (i++ == index)
             return move(unique_ptr<othello::strategy>(sti.build(color)));
@@ -142,7 +142,7 @@ std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color
 
 void print_strategy_indexes()
 {
-    int i = 0;
+    unsigned i = 0;
     for (auto sti : strategy_indexes)
         cout << i++ << " - " << sti.description << endl;
 }
@@ -175,7 +175,7 @@ unsigned int arg_black_strategy = 0;
 
 bool parse_args(vector<string> args)
 {
-    for (int i = 0; i < args.size(); i++) {
+    for (unsigned i = 0; i < args.size(); i++) {
         if (args[i] == "help" || args[i] == "--help" || args[i] == "-h") {
             print_help();
             return false;
