@@ -36,8 +36,8 @@ const score_function_register pieces_diff_score = {
 int pieces_diff_score_with_borders_and_corners_(const game &g, int corner_score = 6, int border_score = 2)
 {
     int score = 0;
-    for (int y = 0; y < g.get_size(); y++) {
-        for (int x = 0; x < g.get_size(); x++) {
+    for (int y = 0; y < g.size; y++) {
+        for (int x = 0; x < g.size; x++) {
             pos p = {y, x};
             if (g.is_corner(p)) {
                 score += sign(g[p]) * corner_score;

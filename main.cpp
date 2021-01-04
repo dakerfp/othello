@@ -25,13 +25,13 @@ string game_winner_message(othello::piece_color winner)
 void print_othello_board(const othello::game &board, othello::piece_color pc=othello::none)
 {
     cout << "  ";
-    for (int x = 0; x < board.get_size(); x++)
+    for (int x = 0; x < board.size; x++)
         cout << othello::io::alpha_from_index(x);
     cout << endl;
 
-    for (int y = 0; y < board.get_size(); y++) {
+    for (int y = 0; y < board.size; y++) {
         cout << y + 1 << " ";
-        for (int x = 0; x < board.get_size(); x++) {
+        for (int x = 0; x < board.size; x++) {
             othello::pos p = {x,y};
             switch (board[p])
             {

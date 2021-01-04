@@ -207,7 +207,6 @@ public:
 };
 
 class game {
-    const int size = 8;
     board8x8 board;
     piece_color next_player;
 
@@ -248,6 +247,8 @@ class game {
     }
 
 public:
+    static constexpr int size = 8;
+
     game()
     {
         init();
@@ -278,8 +279,6 @@ public:
 
         next_player = white;
     }
-
-    int get_size() const { return size; }
 
     piece_color operator[](const pos &p) const
     {

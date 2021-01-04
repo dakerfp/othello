@@ -14,7 +14,7 @@ void test_initial_condition_and_first_placement()
 {
     othello::game g;
 
-    assert(g.get_size() == 8);
+    assert(g.size == 8);
     assert(g.player() == othello::white);
 
     assert(g.count_pieces(othello::white) == 2);
