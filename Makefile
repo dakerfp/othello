@@ -10,8 +10,7 @@ othello: main.cpp
 
 test: test.cpp
 	$(CC) $(CXXFLAGS) $< -o $@
-	./test
-	rm -rf test
+	./test || rm -rf test
 
 benchmark: benchmark.cpp
 	$(CC) $(CXXFLAGS) $< -o $@
