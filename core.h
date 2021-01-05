@@ -9,8 +9,10 @@
 #include <functional>
 
 #if !defined(popcount)
-#define popcount(x) __builtin_popcount(x)
+#define popcount(x) __builtin_popcountll(x)
 #endif
+
+#define first_bit_index(x) __builtin_ctzll(x)
 
 namespace othello {
 
@@ -56,12 +58,43 @@ piece_color opposite(piece_color c)
 
 typedef unsigned long long int uint64;
 typedef uint64 index;
+typedef uint64 bitpos;
+typedef uint64 bitmap8x8;
+
+struct indexes {
+    bitmap8x8 bitmap;
+    constexpr int size() const { return popcount(bitmap); }
+
+    struct iterator {
+        bitmap8x8 idx;
+
+        bitpos operator*() const { return idx & (bitpos(1) << first_bit_index(idx)); }
+        constexpr int index() const { return first_bit_index(idx); }
+        void operator++() {
+            idx ^= bitpos(1) << first_bit_index(idx);
+        }
+        bool operator==(const iterator &o) const {
+            return idx == o.idx;
+        }
+    };
+
+    constexpr iterator begin() const {
+        return {bitmap};
+    }
+
+    constexpr iterator end() const {
+        return {0};
+    }
+};
+
 
 struct pos {
     int x, y;
     bool operator==(const pos &o) const { return x == o.x && y == o.y; }
     index to_index() const { return y * 8 + x; }
+    bitpos to_bitpos() const { return 1 << to_index(); }
     static pos from_index(index i) { return {int(i) % 8, int(i) / 8}; }
+    static pos from_bitpos(bitpos b) { return from_index(first_bit_index(b)); }
 };
 
 namespace directions {
@@ -89,6 +122,18 @@ constexpr pos next_pos(const pos &p, direction d) {
     }
 }
 
+constexpr bitpos next_bitpos(bitpos b, direction d) {
+    switch (d)
+    {
+    case N: return b << 8;
+    case S: return b >> 8;
+    case W: return b << 1;
+    case E: return b >> 1;
+    default:
+        return b;
+    }
+}
+
 namespace util {
     static constexpr int size = 8;
     static constexpr int last = 7;
@@ -98,14 +143,24 @@ namespace util {
         return p.y * size + p.x;
     }
 
-    static constexpr uint64 bit(const pos &p)
+    static constexpr index to_index(bitpos b)
     {
-        return uint64(1) << index_from_pos(p);
+        return first_bit_index(b);
+    }
+
+    static constexpr bitpos bit(const pos &p)
+    {
+        return bitpos(1) << index_from_pos(p);
+    }
+
+    static constexpr bitpos bit(index i)
+    {
+        return bitpos(1) << i;
     }
 }
 
 namespace mask {
-    static constexpr uint64 make_border() {
+    static constexpr bitmap8x8 make_border() {
         uint64 mask = 0;
         for (int i = 1; i < util::size; i++) {
             mask |= util::bit({0, i});
@@ -116,19 +171,19 @@ namespace mask {
         return mask;
     }
 
-    static constexpr uint64 all = ~0;
-    static constexpr uint64 corners = util::bit({0, 0})
+    static constexpr bitmap8x8 all = ~0;
+    static constexpr bitmap8x8 corners = util::bit({0, 0})
         | util::bit({0, util::last})
         | util::bit({util::last, 0})
         | util::bit({util::last, util::last});
-    static constexpr uint64 border = make_border();
-    static constexpr uint64 inner = all ^ border;
+    static constexpr bitmap8x8 border = make_border();
+    static constexpr bitmap8x8 inner = all ^ border;
 }
 
 class board8x8 {
 private:
-    uint64 whites;
-    uint64 blacks;
+    bitmap8x8 whites;
+    bitmap8x8 blacks;
 
 public:
     board8x8()
@@ -159,14 +214,20 @@ public:
 
     constexpr void set_white(index i)
     {
-        whites |= uint64(1) << i;
-        blacks &= ~(uint64(1) << i);
+        whites |= util::bit(i);
+        blacks &= ~util::bit(i);
     }
 
     constexpr void set_black(index i)
     {
-        blacks |= uint64(1) << i;
-        whites &= ~(uint64(1) << i);
+        blacks |= util::bit(i);
+        whites &= ~util::bit(i);
+    }
+
+    constexpr void set_none(index i)
+    {
+        whites &= ~util::bit(i);
+        blacks &= ~util::bit(i);
     }
 
     constexpr void set(index i, piece_color c)

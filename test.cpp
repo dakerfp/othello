@@ -10,6 +10,40 @@
 
 using namespace std;
 
+void test_indexes()
+{
+    othello::bitmap8x8 bmp = othello::util::bit(42);
+    othello::indexes idxs = {bmp};
+    assert(bmp == othello::uint64(1) << 42);
+    assert(idxs.size() == 1);
+
+    bmp = 0;
+    idxs = {bmp};
+    assert(idxs.size() == 0);
+    assert(idxs.begin() == idxs.end());
+
+    bmp = othello::util::bit(7) | othello::util::bit(42);
+    idxs = {bmp};
+    assert(idxs.size() == 2);
+
+    auto it = idxs.begin();
+    assert(*it == othello::util::bit(7));
+    ++it;
+    assert(it.index() == 42);
+    assert(*it == othello::util::bit(42));
+    ++it;
+    assert(*it == 0);
+    assert(it == idxs.end());
+
+    int count = 0;
+    for (__attribute__((unused)) othello::bitpos p : idxs) {
+        count++;
+        if (count > 10)
+            assert(0);
+    }
+    assert(count == 2);
+}
+
 void test_initial_condition_and_first_placement()
 {
     othello::game g;
@@ -103,6 +137,7 @@ void test_benchmark_winrate()
 
 int main()
 {
+    test_indexes();
     test_initial_condition_and_first_placement();
     test_parse_game_positions();
     test_replays();
