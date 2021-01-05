@@ -36,12 +36,38 @@ void test_initial_condition_and_first_placement()
     assert(g.count_pieces(othello::none) == 8 * 8 - 5);
 }
 
+struct replay {
+    othello::piece_color winner;
+    const char * log;
+    const vector<othello::pos> positions() const {
+        return othello::io::parse_game_positions(log);
+    }
+};
+
 void test_parse_game_positions()
 {
+    assert(othello::io::to_string({0,0}) == "a1");
+    assert(othello::io::to_string({7,7}) == "h8");
+
     vector<othello::pos> positions = othello::io::parse_game_positions("a1 b2 c3 d4 e5 f6 g7 h8");
     assert(positions.size() == 8);
     for (unsigned i = 0; i < positions.size(); i++)
         assert(positions[i] == othello::pos(i, i));
+}
+
+static replay replays[] = {
+    {othello::black, "d6 c4 e3 d7 c5 c6 b5 f4 d3 e2 f3 f2 d8 e6 b4 a4 g3 d2 c3 a5 g4 f5 e7 h4 g5 h3 f1 e8 c2 c8 f7 c1 b2 h5 c7 b6 f6 d1 a6 a7 g2 b3 g6 b7 a3 e1 b8 h2 f8 h6 g1 a2 g7 h1 b1 a1 h7 g8"},
+};
+
+void test_replay(const replay &r)
+{
+    assert(othello::replay(r.positions(), r.winner));
+}
+
+void test_replays()
+{
+    for (auto &r : replays)
+        test_replay(r);
 }
 
 void test_benchmark_winrate()
@@ -79,5 +105,6 @@ int main()
 {
     test_initial_condition_and_first_placement();
     test_parse_game_positions();
+    test_replays();
     test_benchmark_winrate();
 }

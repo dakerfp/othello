@@ -20,7 +20,7 @@ constexpr int clamp(int n)
 
 constexpr char alpha_from_index(int index)
 {
-    return clamp('a' + index);
+    return 'a' + clamp(index);
 }
 
 constexpr int index_from_alpha(char alpha)
@@ -31,6 +31,11 @@ constexpr int index_from_alpha(char alpha)
 constexpr int index_from_digit(char digit)
 {
     return clamp(digit - '1');
+}
+
+std::string to_string(const othello::pos &p)
+{
+    return std::string(1, alpha_from_index(p.x)) + std::to_string(p.y + 1);
 }
 
 bool parse_pos(std::string s, othello::pos &pos)

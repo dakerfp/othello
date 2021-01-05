@@ -2,9 +2,11 @@
 #ifndef OTHELLO_H
 #define OTHELLO_H
 
+#include <cassert>
 #include <string>
 #include <vector>
 #include <numeric>
+#include <functional>
 
 #if !defined(popcount)
 #define popcount(x) __builtin_popcount(x)
@@ -420,9 +422,6 @@ class strategy
 private:
     piece_color color;
 
-protected:
-    virtual pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) = 0;
-
 public:
     strategy(piece_color color_=none)
         : color(color_)
@@ -432,27 +431,30 @@ public:
 
     virtual void reset(piece_color color_) { color = color_; }
 
+    virtual pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) = 0;
+
     piece_color player() const { return color; }
-
-    bool play(game &g) {
-        if (g.player() != player())
-            return false;
-        
-        std::vector<pos> possible_positions = g.possible_place_positions();
-        if (possible_positions.empty())
-            return false;
-
-        pos p = choose_piece_position(g, possible_positions);
-        g.place_piece(p);
-
-        return true;
-    }
 };
+
+pos play_player(strategy *s, game &g) {
+    assert(g.player() == s->player());
+
+    std::vector<pos> possible_positions = g.possible_place_positions();
+    assert(!possible_positions.empty());
+
+    pos p = s->choose_piece_position(g, possible_positions);
+    g.place_piece(p);
+
+    return p;
+}
 
 piece_color play(game &game,
     strategy * strategy_white,
-    strategy * strategy_black)
+    strategy * strategy_black,
+    std::function<void(const othello::game&)> showgame=nullptr,
+    std::function<void(const pos&)> logpos=nullptr)
 {
+    if (showgame) showgame(game);
     while (1) {
         if (!game.player_can_place_any_piece(game.player())) {
             if (!game.player_can_place_any_piece(opposite(game.player())))
@@ -460,19 +462,23 @@ piece_color play(game &game,
             game.flip_player();
         }
 
+        pos p;
         switch (game.player()) {
         case othello::white:
-            strategy_white->play(game);
+            p = play_player(strategy_white, game);
             break;
         case othello::black:
-            strategy_black->play(game);
+            p = play_player(strategy_black, game);
             break;
         default:
             break; // ignore
         }
+        if (logpos) logpos(p);
+        if (showgame) showgame(game);
     }
     return game.winner();
 }
+
 }
 
 #endif // OTHELLO_H

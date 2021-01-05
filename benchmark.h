@@ -82,6 +82,18 @@ vector<double> accumulate_score(const std::vector<std::vector<double>> &winmatri
     return scores;
 }
 
+bool replay(const vector<pos> &positions, piece_color winner) {
+    game g;
+    for (auto p : positions) {
+        if (!g.player_can_place_any_piece(g.player()))
+            g.flip_player();
+        if (g.is_game_over())
+            return false; // should not have ended
+        g.place_piece(p);
+    }
+    return g.is_game_over() && winner == g.winner();
+}
+
 }
 
 #endif

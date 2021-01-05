@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <functional>
+#include <fstream>
 #include <iostream>
 #include <memory>
 
@@ -22,25 +23,25 @@ string game_winner_message(othello::piece_color winner)
         return "winner is " + othello::to_string(winner);
 }
 
-void print_othello_board(const othello::game &board, othello::piece_color pc=othello::none)
+void print_othello_board(const othello::game &game)
 {
     cout << "  ";
-    for (int x = 0; x < board.size; x++)
+    for (int x = 0; x < game.size; x++)
         cout << othello::io::alpha_from_index(x);
     cout << endl;
 
-    for (int y = 0; y < board.size; y++) {
+    for (int y = 0; y < game.size; y++) {
         cout << y + 1 << " ";
-        for (int x = 0; x < board.size; x++) {
+        for (int x = 0; x < game.size; x++) {
             othello::pos p = {x,y};
-            switch (board[p])
+            switch (game[p])
             {
             case othello::white:
             case othello::black:
-                cout << to_symbol(board[p]);
+                cout << to_symbol(game[p]);
                 break;
             default:
-                if (pc != othello::none && board.can_play(p, pc)) {
+                if (game.can_play(p, game.player())) {
                     cout << "!";
                 } else {
                     cout << ".";
@@ -64,7 +65,6 @@ public:
     {
         othello::pos p;
         while (1) {
-            print_othello_board(game, game.player());
             cout << "[" << to_symbol(game.player()) << "] play position:" << endl;
 
             string s;
@@ -136,6 +136,7 @@ unsigned int parse_strategy_index_arg(const string &arg)
 
 unsigned int arg_white_strategy = 0;
 unsigned int arg_black_strategy = 0;
+string arg_output_log_in_file = "";
 
 bool parse_args(vector<string> args)
 {
@@ -158,6 +159,12 @@ bool parse_args(vector<string> args)
                 return false;
             }
             arg_black_strategy = parse_strategy_index_arg(args[++i]);
+        } else if (args[i] == "--output" || args[i] == "-o") {
+            if (i + 1 == args.size()) {
+                cerr << "output game log in file" << endl;
+                return false;
+            }
+            arg_output_log_in_file = args[++i];
         }
     }
     return true;
@@ -173,8 +180,22 @@ int main(int argc, char* argv[])
     unique_ptr<othello::strategy> strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
     unique_ptr<othello::strategy> strategy_black = make_strategy_from_index(othello::black, arg_black_strategy);
 
-    othello::piece_color winner = othello::play(game, strategy_white.get(), strategy_black.get());
-    print_othello_board(game);
+    othello::piece_color winner;
+
+    if (arg_output_log_in_file.empty()) {
+        winner = othello::play(game, strategy_white.get(), strategy_black.get(), &print_othello_board);
+    } else {
+        ofstream file(arg_output_log_in_file);
+        auto logfile = [&file](const othello::pos &p) {
+            if (!file.good()) {
+                cerr << "file is not good" << endl;
+                return;
+            }
+            file << othello::io::to_string(p) << " ";
+        };
+        winner = othello::play(game, strategy_white.get(), strategy_black.get(), &print_othello_board, logfile);
+        file.close();
+    }
 
     cout << endl << game_winner_message(winner) << endl;
 }
