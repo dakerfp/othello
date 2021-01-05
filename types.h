@@ -77,7 +77,7 @@ namespace util {
     }
 }
 
-struct indexes {
+struct positions {
     bitmap8x8 bitmap = 0;
 
     constexpr int size() const { return popcount(bitmap); }
@@ -105,7 +105,7 @@ struct indexes {
         return {0};
     }
 
-    constexpr static indexes all() {
+    constexpr static positions all() {
         return {~uint64(0)};
     }
 };

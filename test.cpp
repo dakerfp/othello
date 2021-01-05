@@ -10,33 +10,34 @@
 
 using namespace std;
 
-void test_indexes()
+void test_positions()
 {
     othello::bitmap8x8 bmp = othello::util::bit(42);
-    othello::indexes idxs = {bmp};
+    othello::positions poss = {bmp};
     assert(bmp == othello::uint64(1) << 42);
-    assert(idxs.size() == 1);
+    assert(poss.size() == 1);
 
     bmp = 0;
-    idxs = {bmp};
-    assert(idxs.size() == 0);
-    assert(idxs.begin() == idxs.end());
+    poss = {bmp};
+    assert(poss.size() == 0);
+    assert(poss.begin() == poss.end());
 
     bmp = othello::util::bit(7) | othello::util::bit(42);
-    idxs = {bmp};
-    assert(idxs.size() == 2);
+    poss = {bmp};
+    assert(poss.size() == 2);
 
-    auto it = idxs.begin();
+    auto it = poss.begin();
     assert(*it == othello::util::bit(7));
     ++it;
     assert(it.index() == 42);
     assert(*it == othello::util::bit(42));
     ++it;
     assert(*it == 0);
-    assert(it == idxs.end());
+    assert(it == poss.end());
 
     int count = 0;
-    for (__attribute__((unused)) othello::bitpos p : idxs) {
+    for (othello::bitpos p : poss) {
+        assert(p != 0);
         count++;
         if (count > 10)
             assert(0);
@@ -137,7 +138,7 @@ void test_benchmark_winrate()
 
 int main()
 {
-    test_indexes();
+    test_positions();
     test_initial_condition_and_first_placement();
     test_parse_game_positions();
     test_replays();

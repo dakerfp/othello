@@ -165,12 +165,10 @@ public:
     std::vector<pos> possible_place_positions() const
     {
         std::vector<pos> possible_positions;
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                pos p = {x, y};
-                if (can_play(p, player()))
-                    possible_positions.push_back(p);
-            }
+        for (bitpos bp : positions::all()) {
+            pos p = pos::from_bitpos(bp);
+            if (can_play(p, player()))
+                possible_positions.push_back(p);
         }
         return possible_positions;
     }
