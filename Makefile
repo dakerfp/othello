@@ -14,7 +14,7 @@ test: test.cpp
 
 benchmark: benchmark.cpp
 	$(CC) $(CXXFLAGS) $< -o $@
-	./benchmark
+	./benchmark 10
 
 clean:
 	rm -rf *.o

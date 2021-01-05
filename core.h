@@ -133,10 +133,14 @@ enum direction {
     N = -8,
     S = +8,
     E = +1,
-    W = -1
+    W = -1,
+    NW = -9,
+    NE = -7,
+    SW = +7,
+    SE = +9
 };
 
-direction all[4] = {N, S, E, W};
+direction all[8] = {N, S, E, W, NW, NE, SW, SE};
 
 }
 
@@ -149,8 +153,12 @@ constexpr pos next_pos(const pos &p, direction d) {
     case S: return {p.x, p.y + 1};
     case W: return {p.x - 1, p.y};
     case E: return {p.x + 1, p.y};
+    case NW: return {p.x - 1, p.y - 1};
+    case NE: return {p.x + 1, p.y - 1};
+    case SW: return {p.x - 1, p.y + 1};
+    case SE: return {p.x + 1, p.y + 1};
     default:
-        return p;        
+        return p;
     }
 }
 
@@ -161,6 +169,10 @@ constexpr bitpos next_bitpos(bitpos b, direction d) {
     case S: return b >> 8;
     case W: return b << 1;
     case E: return b >> 1;
+    case NW: return b << 9;
+    case NE: return b << 7;
+    case SW: return b >> 7;
+    case SE: return b >> 9;
     default:
         return b;
     }
