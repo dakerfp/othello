@@ -8,6 +8,12 @@
 
 using namespace std;
 
+const char * othello_billboard =
+" _____ _   _       _ _     \n"
+"|     | |_| |_ ___| | |___ \n"
+"|  |  |  _|   | -_| | | . |\n"
+"|_____|_| |_|_|___|_|_|___|\n";
+
 string to_symbol(othello::piece_color pc)
 {
     return pc == othello::white ? "X" : "O";
@@ -173,6 +179,8 @@ int main(int argc, char* argv[])
     if (!parse_args(argv_to_args(argc, argv))) {
         return 1;
     }
+
+    cout << othello_billboard << endl;
 
     othello::game game;
     unique_ptr<othello::strategy> strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
