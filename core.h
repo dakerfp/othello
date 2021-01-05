@@ -61,9 +61,46 @@ typedef uint64 index;
 typedef uint64 bitpos;
 typedef uint64 bitmap8x8;
 
+struct pos {
+    int x, y;
+    bool operator==(const pos &o) const { return x == o.x && y == o.y; }
+    index to_index() const { return y * 8 + x; }
+    bitpos to_bitpos() const { return 1 << to_index(); }
+    static pos from_index(index i) { return {int(i) % 8, int(i) / 8}; }
+    static pos from_bitpos(bitpos b) { return from_index(first_bit_index(b)); }
+};
+
+namespace util {
+    static constexpr int size = 8;
+    static constexpr int last = 7;
+
+    static constexpr index index_from_pos(const pos &p)
+    {
+        return p.y * size + p.x;
+    }
+
+    static constexpr index to_index(bitpos b)
+    {
+        return first_bit_index(b);
+    }
+
+    static constexpr bitpos bit(const pos &p)
+    {
+        return bitpos(1) << index_from_pos(p);
+    }
+
+    static constexpr bitpos bit(index i)
+    {
+        return bitpos(1) << i;
+    }
+}
+
 struct indexes {
-    bitmap8x8 bitmap;
+    bitmap8x8 bitmap = 0;
+
     constexpr int size() const { return popcount(bitmap); }
+    void set_index(index i) { bitmap |= util::bit(i); }
+    void set_bit(bitpos b) { bitmap |= b; }
 
     struct iterator {
         bitmap8x8 idx;
@@ -85,16 +122,10 @@ struct indexes {
     constexpr iterator end() const {
         return {0};
     }
-};
 
-
-struct pos {
-    int x, y;
-    bool operator==(const pos &o) const { return x == o.x && y == o.y; }
-    index to_index() const { return y * 8 + x; }
-    bitpos to_bitpos() const { return 1 << to_index(); }
-    static pos from_index(index i) { return {int(i) % 8, int(i) / 8}; }
-    static pos from_bitpos(bitpos b) { return from_index(first_bit_index(b)); }
+    constexpr static indexes all() {
+        return {~uint64(0)};
+    }
 };
 
 namespace directions {
@@ -106,6 +137,7 @@ enum direction {
 };
 
 direction all[4] = {N, S, E, W};
+
 }
 
 using namespace directions;
@@ -131,31 +163,6 @@ constexpr bitpos next_bitpos(bitpos b, direction d) {
     case E: return b >> 1;
     default:
         return b;
-    }
-}
-
-namespace util {
-    static constexpr int size = 8;
-    static constexpr int last = 7;
-
-    static constexpr index index_from_pos(const pos &p)
-    {
-        return p.y * size + p.x;
-    }
-
-    static constexpr index to_index(bitpos b)
-    {
-        return first_bit_index(b);
-    }
-
-    static constexpr bitpos bit(const pos &p)
-    {
-        return bitpos(1) << index_from_pos(p);
-    }
-
-    static constexpr bitpos bit(index i)
-    {
-        return bitpos(1) << i;
     }
 }
 
@@ -357,6 +364,19 @@ public:
     constexpr bool is_index_valid(index i) const
     {
         return i < sizeof(uint64) * 8;
+    }
+
+    bool unchecked_can_play(bitpos p, piece_color player_) const
+    {
+        if (board.get(p) != none)
+            return false;
+
+        for (direction d : directions::all) {
+            if (can_piece_surround_in_direction(player_, pos::from_bitpos(p), d))
+                return true;
+        }
+
+        return false;
     }
 
     bool unchecked_can_play(const pos &p, piece_color player_) const
