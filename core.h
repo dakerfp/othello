@@ -479,11 +479,11 @@ public:
         return count;
     }
 
-    constexpr int count_whites(uint64 mask=~0) const {
+    constexpr int count_whites(uint64 mask=mask::all) const {
         return board.count_whites(mask);
     }
 
-    constexpr int count_blacks(uint64 mask=~0) const {
+    constexpr int count_blacks(uint64 mask=mask::all) const {
         return board.count_blacks(mask);
     }
 
