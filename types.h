@@ -45,12 +45,17 @@ typedef uint64 bitmap8x8;
 
 struct pos {
     int x, y;
-    bool operator==(const pos &o) const { return x == o.x && y == o.y; }
-    index to_index() const { return y * 8 + x; }
-    bitpos to_bitpos() const { return 1 << to_index(); }
-    static pos from_index(index i) { return {int(i) % 8, int(i) / 8}; }
-    static pos from_bitpos(bitpos b) { return from_index(first_bit_index(b)); }
+    constexpr bool operator==(const pos &o) const { return x == o.x && y == o.y; }
+    constexpr index to_index() const { return y * 8 + x; }
+    constexpr bitpos to_bitpos() const { return bitpos(1) << to_index(); }
+    constexpr static pos from_index(index i) { return {int(i) % 8, int(i) / 8}; }
+    constexpr static pos from_bitpos(bitpos b) { return from_index(first_bit_index(b)); }
 };
+
+bool is_bitpos_valid(bitpos p)
+{
+    return popcount(p) == 1;
+}
 
 namespace util {
     static constexpr int size = 8;
@@ -74,6 +79,16 @@ namespace util {
     static constexpr bitpos bit(index i)
     {
         return bitpos(1) << i;
+    }
+
+    static constexpr int row(bitpos p)
+    {
+        return to_index(p) / 8;
+    }
+
+    static constexpr int col(bitpos p)
+    {
+        return to_index(p) % 8;
     }
 }
 
@@ -110,6 +125,47 @@ struct positions {
     }
 };
 
+namespace mask {
+    constexpr bitmap8x8 bit(int x, int y) {
+        return util::bit({x, y});
+    }
+
+    static constexpr bitmap8x8 make_border() {
+        bitmap8x8 mask = 0;
+        for (int i = 1; i < util::size; i++) {
+            mask |= bit(0, i);
+            mask |= bit(util::last, i);
+            mask |= bit(i, 0);
+            mask |= bit(i, util::last);
+        }
+        return mask;
+    }
+
+    constexpr bitmap8x8 all = ~bitmap8x8(0);
+    constexpr bitmap8x8 corners = bit(0, 0)
+        | bit(0, util::last)
+        | bit(util::last, 0)
+        | bit(util::last, util::last);
+    constexpr bitmap8x8 border = make_border();
+    constexpr bitmap8x8 inner = all ^ border;
+    constexpr bitmap8x8 north =
+        bit(0, 0) | bit(1, 0) | bit(2, 0) | bit(3, 0) |
+        bit(4, 0) | bit(5, 0) | bit(6, 0) | bit(6, 0);
+    constexpr bitmap8x8 south =
+        bit(0, util::last) | bit(1, util::last) | bit(2, util::last) | bit(3, util::last) |
+        bit(4, util::last) | bit(5, util::last) | bit(6, util::last) | bit(6, util::last);
+    constexpr bitmap8x8 west =
+        bit(0, 0) | bit(0, 1) | bit(0, 2) | bit(0, 3) |
+        bit(0, 4) | bit(0, 5) | bit(0, 6) | bit(0, 7);
+    constexpr bitmap8x8 east =
+        bit(util::last, 0) | bit(util::last, 1) | bit(util::last, 2) | bit(util::last, 3) |
+        bit(util::last, 4) | bit(util::last, 5) | bit(util::last, 6) | bit(util::last, 7);
+    constexpr bitmap8x8 nw = north | west;
+    constexpr bitmap8x8 ne = north | east;
+    constexpr bitmap8x8 sw = south | west;
+    constexpr bitmap8x8 se = south | east;
+}
+
 namespace directions {
 enum direction {
     N = -8,
@@ -123,62 +179,24 @@ enum direction {
 };
 
 direction all[8] = {N, S, E, W, NW, NE, SW, SE};
-
 }
 
 using namespace directions;
 
-constexpr pos next_pos(const pos &p, direction d) {
-    switch (d)
-    {
-    case N: return {p.x, p.y - 1};
-    case S: return {p.x, p.y + 1};
-    case W: return {p.x - 1, p.y};
-    case E: return {p.x + 1, p.y};
-    case NW: return {p.x - 1, p.y - 1};
-    case NE: return {p.x + 1, p.y - 1};
-    case SW: return {p.x - 1, p.y + 1};
-    case SE: return {p.x + 1, p.y + 1};
-    default:
-        return p;
-    }
-}
-
 constexpr bitpos next_bitpos(bitpos b, direction d) {
     switch (d)
     {
-    case N: return b << 8;
-    case S: return b >> 8;
-    case W: return b << 1;
-    case E: return b >> 1;
-    case NW: return b << 9;
-    case NE: return b << 7;
-    case SW: return b >> 7;
-    case SE: return b >> 9;
+    case N: return (b ^ mask::north) << 8;
+    case S: return (b ^ mask::south) >> 8;
+    case W: return (b ^ mask::west) << 1;
+    case E: return (b ^ mask::east) >> 1;
+    case NW: return (b ^ mask::nw) << 9;
+    case NE: return (b ^ mask::ne) << 7;
+    case SW: return (b ^ mask::sw) >> 7;
+    case SE: return (b ^ mask::se) >> 9;
     default:
-        return b;
+        return 0;
     }
-}
-
-namespace mask {
-    static constexpr bitmap8x8 make_border() {
-        uint64 mask = 0;
-        for (int i = 1; i < util::size; i++) {
-            mask |= util::bit({0, i});
-            mask |= util::bit({util::last, i});
-            mask |= util::bit({i, 0});
-            mask |= util::bit({i, util::last});
-        }
-        return mask;
-    }
-
-    static constexpr bitmap8x8 all = ~0;
-    static constexpr bitmap8x8 corners = util::bit({0, 0})
-        | util::bit({0, util::last})
-        | util::bit({util::last, 0})
-        | util::bit({util::last, util::last});
-    static constexpr bitmap8x8 border = make_border();
-    static constexpr bitmap8x8 inner = all ^ border;
 }
 
 class board8x8 {
