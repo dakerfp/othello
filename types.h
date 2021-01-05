@@ -25,17 +25,6 @@ int sign(piece_color pc) {
     }
 }
 
-std::string to_string(piece_color c) {
-    switch (c)
-    {
-    case white: return "white";
-    case black: return "black";
-    case none: return "none";
-    default:
-        return "??";
-    }
-}
-
 piece_color opposite(piece_color c)
 {
     switch (c)

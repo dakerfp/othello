@@ -25,7 +25,7 @@ string game_winner_message(othello::piece_color winner)
     if (winner == othello::none)
         return "draw";
     else
-        return "winner is " + othello::to_string(winner);
+        return "winner is " + othello::io::to_string(winner);
 }
 
 void print_othello_board(const othello::game &game)

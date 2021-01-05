@@ -9,6 +9,18 @@
 
 namespace othello::io {
 
+std::string to_string(piece_color c) {
+    switch (c)
+    {
+    case white: return "white";
+    case black: return "black";
+    case none: return "none";
+    default:
+        return "??";
+    }
+}
+
+
 constexpr int clamp(int n)
 {
     if (n < 0)
