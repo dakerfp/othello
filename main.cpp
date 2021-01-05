@@ -12,7 +12,8 @@ const char * othello_billboard =
 " _____ _   _       _ _     \n"
 "|     | |_| |_ ___| | |___ \n"
 "|  |  |  _|   | -_| | | . |\n"
-"|_____|_| |_|_|___|_|_|___|\n";
+"|_____|_| |_|_|___|_|_|___|\n"
+" Version: " VERSION "\n";
 
 string to_symbol(othello::piece_color pc)
 {

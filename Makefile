@@ -1,11 +1,12 @@
 
 CC=g++
 CXXFLAGS=-std=c++20 -O3 -Wall
+VERSION=`git rev-parse --short HEAD`
 
 all: test othello benchmark
 
 othello: main.cpp
-	$(CC) $(CXXFLAGS) $< -o $@
+	$(CC) $(CXXFLAGS) -DVERSION=\"$(VERSION)\" $< -o $@
 
 test: test.cpp
 	$(CC) $(CXXFLAGS) $< -o $@
