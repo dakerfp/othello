@@ -1,10 +1,11 @@
 #ifndef OTHELLO_SCORE_FUNC_H
 #define OTHELLO_SCORE_FUNC_H
 
+#include <climits>
 #include <functional>
 #include <string>
 
-#include "othello.h"
+#include "core.h"
 
 namespace othello {
 

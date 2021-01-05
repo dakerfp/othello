@@ -6,7 +6,7 @@
 #include <numeric>
 #include <vector>
 
-#include "othello.h"
+#include "core.h"
 
 using namespace std;
 

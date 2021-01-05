@@ -6,7 +6,7 @@
 #include <climits>
 #include <memory>
 
-#include "othello.h"
+#include "core.h"
 #include "score.h"
 
 namespace othello {

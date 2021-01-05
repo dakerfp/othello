@@ -1,7 +1,7 @@
 #ifndef OTHELLO_IO_H
 #define OTHELLO_IO_H
 
-#include "othello.h"
+#include "core.h"
 
 #include <string>
 #include <vector>

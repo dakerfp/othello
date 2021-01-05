@@ -5,8 +5,6 @@
 #include <memory>
 
 #include "othello.h"
-#include "ai.h"
-#include "io.h"
 
 using namespace std;
 

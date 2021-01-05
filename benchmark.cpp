@@ -1,6 +1,4 @@
 #include "othello.h"
-#include "benchmark.h"
-#include "ai.h"
 
 #include <cstdlib>
 #include <iostream>
