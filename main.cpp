@@ -5,19 +5,20 @@
 #include <memory>
 
 #include "othello.h"
+#include "colors.h"
 
 using namespace std;
 
 const char * othello_billboard =
-" _____ _   _       _ _     \n"
-"|     | |_| |_ ___| | |___ \n"
-"|  |  |  _|   | -_| | | . |\n"
-"|_____|_| |_|_|___|_|_|___|\n"
-" Version: " VERSION "\n";
+RED      " _____ _   _       _ _     \n"
+BOLDRED  "|     | |_| |_ ___| | |___ \n"
+BLUE     "|  |  |  _|   | -_| | | . |\n"
+BOLDBLUE "|_____|_| |_|_|___|_|_|___|\n"
+YELLOW   " Version: " VERSION "\n" RESET;
 
 string to_symbol(othello::piece_color pc)
 {
-    return pc == othello::white ? "X" : "O";
+    return pc == othello::white ? (RED "X" RESET) : (BLUE "O" RESET);
 }
 
 string game_winner_message(othello::piece_color winner)
@@ -47,7 +48,7 @@ void print_othello_board(const othello::game &game)
                 break;
             default:
                 if (game.can_play(p, game.player())) {
-                    cout << "!";
+                    cout << (GREEN "!" RESET);
                 } else {
                     cout << ".";
                 }
