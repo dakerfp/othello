@@ -89,10 +89,6 @@ constexpr pos next_pos(const pos &p, direction d) {
     }
 }
 
-constexpr index next_index(index i, direction d) {
-    return i + index(d);
-}
-
 namespace util {
     static constexpr int size = 8;
     static constexpr int last = 7;
@@ -106,7 +102,28 @@ namespace util {
     {
         return uint64(1) << index_from_pos(p);
     }
-};
+}
+
+namespace mask {
+    static constexpr uint64 make_border() {
+        uint64 mask = 0;
+        for (int i = 1; i < util::size; i++) {
+            mask |= util::bit({0, i});
+            mask |= util::bit({util::last, i});
+            mask |= util::bit({i, 0});
+            mask |= util::bit({i, util::last});
+        }
+        return mask;
+    }
+
+    static constexpr uint64 all = ~0;
+    static constexpr uint64 corners = util::bit({0, 0})
+        | util::bit({0, util::last})
+        | util::bit({util::last, 0})
+        | util::bit({util::last, util::last});
+    static constexpr uint64 border = make_border();
+    static constexpr uint64 inner = all ^ border;
+}
 
 class board8x8 {
 private:
@@ -166,11 +183,11 @@ public:
         set(util::index_from_pos(p), c);
     }
 
-    constexpr int count_whites(uint64 mask=~0) const {
+    constexpr int count_whites(uint64 mask=mask::all) const {
         return popcount(whites & mask);
     }
 
-    constexpr int count_blacks(uint64 mask=~0) const {
+    constexpr int count_blacks(uint64 mask=mask::all) const {
         return popcount(blacks & mask);
     }
 
@@ -180,22 +197,6 @@ public:
 
     constexpr uint64 count_nones() const {
         return popcount(nones());
-    }
-
-    static constexpr uint64 corners_mask = util::bit({0, 0})
-        | util::bit({0, util::last})
-        | util::bit({util::last, 0})
-        | util::bit({util::last, util::last});
-
-    static constexpr uint64 border_mask() {
-        uint64 mask = 0;
-        for (int i = 1; i < util::size; i++) {
-            mask |= util::bit({0, i});
-            mask |= util::bit({util::last, i});
-            mask |= util::bit({i, 0});
-            mask |= util::bit({i, util::last});
-        }
-        return mask;
     }
 
     int count(piece_color pc) const {
@@ -290,6 +291,11 @@ public:
     constexpr bool is_position_valid(const pos &p) const
     {
         return p.x >= 0 && p.x < size && p.y >= 0 && p.y < size;
+    }
+
+    constexpr bool is_index_valid(index i) const
+    {
+        return i < sizeof(uint64) * 8;
     }
 
     bool unchecked_can_play(const pos &p, piece_color player_) const
