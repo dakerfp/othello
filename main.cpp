@@ -172,6 +172,10 @@ bool parse_args(vector<string> args)
                 return false;
             }
             arg_output_log_in_file = args[++i];
+        } else {
+            // ignore argument ?
+            cerr << "unknow argument " << args[i] << endl;
+            return false;
         }
     }
     return true;
