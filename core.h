@@ -90,9 +90,6 @@ public:
 
     bool unchecked_can_play(bitpos p, piece_color player_) const
     {
-        if (board.get(p) != none)
-            return false;
-
         if (player_ == white) {
             for (direction d : directions::all) {
                 if (can_piece_surround_in_direction<white>(p, d))
@@ -156,8 +153,9 @@ public:
 
     positions possible_place_positions() const
     {
-        positions possible_positions;
-        for (bitpos p : positions::all()) {
+        positions possible_positions = {0};
+        positions search = {board.nones()};
+        for (bitpos p : search) {
             if (can_play(p, player()))
                 possible_positions.set_bit(p);
         }
@@ -166,7 +164,8 @@ public:
 
     bool player_can_place_any_piece(piece_color pc) const
     {
-        for (bitpos p : positions::all()) {
+        positions search = {board.nones()};
+        for (bitpos p : search) {
             if (can_play(p, pc))
                 return true;
         }
