@@ -15,17 +15,7 @@ enum piece_color {
     black = 1 << 1
 };
 
-int sign(piece_color pc) {
-    switch (pc)
-    {
-    case white: return 1;
-    case black: return -1;
-    default:
-        return 0;
-    }
-}
-
-piece_color opposite(piece_color c)
+constexpr piece_color opposite(piece_color c)
 {
     switch (c)
     {
@@ -220,6 +210,18 @@ public:
     void reset()
     {
         whites = blacks = 0;
+    }
+
+    template<piece_color pc>
+    constexpr bool has(bitpos b) const
+    {
+        if (pc == white)
+            return whites & b;
+        if (pc == black)
+            return blacks & b;
+        if (pc == none)
+            return !((whites | blacks) & b);
+        return (whites | blacks) & b;
     }
 
     constexpr piece_color get(bitpos b) const
