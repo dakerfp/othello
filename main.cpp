@@ -18,7 +18,7 @@ YELLOW   " Version: " VERSION "\n" RESET;
 
 string to_symbol(othello::piece_color pc)
 {
-    return pc == othello::white ? (RED "X" RESET) : (BLUE "O" RESET);
+    return pc == othello::white ? (RED " X" RESET) : (BLUE " O" RESET);
 }
 
 string game_winner_message(othello::piece_color winner)
@@ -33,7 +33,7 @@ void print_othello_board(const othello::game &game)
 {
     cout << "  ";
     for (int x = 0; x < game.size; x++)
-        cout << othello::io::alpha_from_index(x);
+        cout << ' ' << othello::io::alpha_from_index(x);
     cout << endl;
 
     for (int y = 0; y < game.size; y++) {
@@ -48,14 +48,15 @@ void print_othello_board(const othello::game &game)
                 break;
             default:
                 if (game.can_play(p.to_bitpos(), game.player())) {
-                    cout << (GREEN "!" RESET);
+                    cout << (GREEN " !" RESET);
                 } else {
-                    cout << ".";
+                    cout << " .";
                 }
             }
         }
         cout << endl;
     }
+    cout << endl;
 }
 
 class human_strategy : public othello::strategy
@@ -71,7 +72,7 @@ public:
     {
         othello::pos p;
         while (1) {
-            cout << "[" << to_symbol(game.player()) << "] play position:" << endl;
+            cout << "[" << to_symbol(game.player()) << "] play position: ";
 
             string s;
             getline(cin, s);
