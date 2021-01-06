@@ -40,14 +40,14 @@ void print_othello_board(const othello::game &game)
         cout << y + 1 << " ";
         for (int x = 0; x < game.size; x++) {
             othello::pos p = {x,y};
-            switch (game[p])
+            switch (game[p.to_bitpos()])
             {
             case othello::white:
             case othello::black:
-                cout << to_symbol(game[p]);
+                cout << to_symbol(game[p.to_bitpos()]);
                 break;
             default:
-                if (game.can_play(p, game.player())) {
+                if (game.can_play(p.to_bitpos(), game.player())) {
                     cout << (GREEN "!" RESET);
                 } else {
                     cout << ".";
@@ -67,7 +67,7 @@ public:
 
     string description() const override { return "human player"; }
 
-    othello::pos choose_piece_position(const othello::game &game, const std::vector<othello::pos> &possible_positions) override
+    othello::bitpos choose_piece_position(const othello::game &game, othello::positions possible_positions) override
     {
         othello::pos p;
         while (1) {
@@ -78,10 +78,10 @@ public:
             if (!othello::io::parse_pos(s, p))
                 continue;
 
-            if (game.can_play(p, game.player()))
+            if (game.can_play(p.to_bitpos(), game.player()))
                 break;
         }
-        return p;
+        return p.to_bitpos();
     }
 };
 

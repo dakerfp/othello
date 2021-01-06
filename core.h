@@ -16,37 +16,37 @@ class game {
     board8x8 board;
     piece_color next_player;
 
-    void flip_pieces_in_direction(piece_color player, const pos &p, direction d)
+    void flip_pieces_in_direction(piece_color player, bitpos p, direction d)
     {
         if (!can_piece_surround_in_direction(player, p, d))
             return;
 
         // flip pieces
-        for (pos np = next_pos(p, d);
-            is_position_valid(np) && board.get(np) == opposite(player);
-            np = next_pos(np, d)) {
+        for (bitpos np = next_bitpos(p, d);
+            is_bitpos_valid(np) && board.get(np) == opposite(player);
+            np = next_bitpos(np, d)) {
             board.set(np, player);
         }
     }
 
-    bool can_piece_surround_in_direction(piece_color player, const pos &p, direction d) const
+    bool can_piece_surround_in_direction(piece_color player, bitpos p, direction d) const
     {
-        pos np = next_pos(p, d);
-        if (!is_position_valid(np))
+        bitpos np = next_bitpos(p, d);
+        if (!is_bitpos_valid(np))
             return false;
 
         if (opposite(player) != board.get(np))
             return false;
 
         int count = 0;
-        while (is_position_valid(np)) {
+        while (is_bitpos_valid(np)) {
             if (board.get(np) == none) {
                 return false;
             } else if (player == board.get(np)) {
                 return count > 0;
             } else {
                 count++;
-                np = next_pos(np, d);
+                np = next_bitpos(np, d);
             }
         }
         return false;
@@ -71,6 +71,10 @@ public:
         return *this;
     }
 
+    piece_color operator[](bitpos p) const {
+        return board.get(p);
+    }
+
     piece_color player() const { return next_player; }
 
     void init()
@@ -78,43 +82,15 @@ public:
         board.reset();
         
         // populate middle pieces
-        board.set({3,3}, white);
-        board.set({4,4}, white);
-        board.set({3,4}, black);
-        board.set({4,3}, black);
+        board.set(pos(3,3).to_bitpos(), white);
+        board.set(pos(4,4).to_bitpos(), white);
+        board.set(pos(3,4).to_bitpos(), black);
+        board.set(pos(4,3).to_bitpos(), black);
 
         next_player = white;
     }
 
-    piece_color operator[](const pos &p) const
-    {
-        return board.get(p);
-    }
-
-    constexpr bool is_position_valid(const pos &p) const
-    {
-        return p.x >= 0 && p.x < size && p.y >= 0 && p.y < size;
-    }
-
-    constexpr bool is_index_valid(index i) const
-    {
-        return i < sizeof(uint64) * 8;
-    }
-
     bool unchecked_can_play(bitpos p, piece_color player_) const
-    {
-        if (board.get(p) != none)
-            return false;
-
-        for (direction d : directions::all) {
-            if (can_piece_surround_in_direction(player_, pos::from_bitpos(p), d))
-                return true;
-        }
-
-        return false;
-    }
-
-    bool unchecked_can_play(const pos &p, piece_color player_) const
     {
         if (board.get(p) != none)
             return false;
@@ -127,15 +103,17 @@ public:
         return false;
     }
 
-    bool can_play(const pos &p, piece_color player_) const
+    bool can_play(bitpos p, piece_color player_) const
     {
-        if (!is_position_valid(p))
+        if (!is_bitpos_valid(p))
             return false;
         
         return unchecked_can_play(p, player_);
     }
+    bool can_play(const pos &p, piece_color player_) const
+    { return can_play(p.to_bitpos(), player_); }
 
-    bool unchecked_place_piece(const pos &p)
+    bool unchecked_place_piece(bitpos p)
     {
         for (direction d : directions::all)
             flip_pieces_in_direction(player(), p, d);
@@ -147,7 +125,7 @@ public:
         return true;
     }
 
-    bool place_piece(const pos &p)
+    bool place_piece(bitpos p)
     {
         if (!can_play(p, player()))
             return false;
@@ -155,32 +133,32 @@ public:
         return unchecked_place_piece(p);
     }
 
-    game test_piece(const pos &p) const
+    bool place_piece(const pos &p) { return place_piece(p.to_bitpos()); }
+
+    game test_piece(bitpos p) const
     {
         game g(*this);
         g.unchecked_place_piece(p);
         return g;
     }
 
-    std::vector<pos> possible_place_positions() const
+    game test_piece(const pos &p) const { return test_piece(p.to_bitpos()); }
+
+    positions possible_place_positions() const
     {
-        std::vector<pos> possible_positions;
-        for (bitpos bp : positions::all()) {
-            pos p = pos::from_bitpos(bp);
+        positions possible_positions;
+        for (bitpos p : positions::all()) {
             if (can_play(p, player()))
-                possible_positions.push_back(p);
+                possible_positions.set_bit(p);
         }
         return possible_positions;
     }
 
     bool player_can_place_any_piece(piece_color pc) const
     {
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                pos p = {x, y};
-                if (can_play(p, pc))
-                    return true;
-            }
+        for (bitpos p : positions::all()) {
+            if (can_play(p, pc))
+                return true;
         }
         return false;
     }
@@ -192,12 +170,12 @@ public:
     }
 
     int count_pieces(piece_color pc) const {
-        int count = 0;
-        for (int y = 0; y < size; y++)
-            for (int x = 0; x < size; x++)
-                if (board.get({x,y})== pc)
-                    count++;
-        return count;
+        if (pc == white)
+            return board.count_whites();
+        if (pc == black)
+            return board.count_blacks();
+
+        return board.count_nones(); // XXX: should all be supporte
     }
 
     constexpr int count_whites(uint64 mask=mask::all) const {

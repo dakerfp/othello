@@ -20,10 +20,13 @@ public:
         : strategy(color)
     {}
 
-    pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) override
+    bitpos choose_piece_position(const game &g, positions possible_positions) override
     {
         int rand_pos = rand() % possible_positions.size();
-        return possible_positions[rand_pos];
+        for (bitpos p : possible_positions)
+            if (rand_pos-- == 0)
+                return p;
+        return 0; // XXX test
     }
 };
 
@@ -36,11 +39,11 @@ public:
         : random_strategy(color)
     {}
 
-    pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) override
+    bitpos choose_piece_position(const game &g, positions possible_positions) override
     {
         // check for borders first
-        for (pos p : possible_positions)
-            if (g.is_border(p))
+        for (bitpos p : possible_positions)
+            if (p & mask::border)
                 return p;
 
         // otherwise go random
@@ -57,11 +60,11 @@ public:
         : random_strategy_with_borders_first(color)
     {}
 
-    pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) override
+    bitpos choose_piece_position(const game &g, positions possible_positions) override
     {
         // check for corners first
-        for (pos p : possible_positions)
-            if (g.is_corner(p))
+        for (bitpos p : possible_positions)
+            if (p & mask::corners)
                 return p;
 
         // otherwise go with borders first
@@ -85,11 +88,11 @@ public:
         : strategy(color), score_f(score_function)
     {}
 
-    pos choose_piece_position(const game &o, const std::vector<pos> &possible_positions) override
+    bitpos choose_piece_position(const game &o, positions possible_positions) override
     {
         int max_score = INT_MIN;
-        pos max_p;
-        for (pos p : possible_positions) {
+        bitpos max_p = 0;
+        for (bitpos p : possible_positions) {
             game g = o.test_piece(p);
             int current_score = score(g);
             if (current_score > max_score) {
@@ -118,7 +121,7 @@ private:
         bool maximize = g.player() == player();
         int final_score = maximize ? INT_MIN : INT_MAX;
         auto possible_places = g.possible_place_positions();
-        for (pos p : possible_places) {
+        for (bitpos p : possible_places) {
             int score = score_game_state(g.test_piece(p), depth - 1);
             if (maximize) {
                 final_score = std::max(final_score, score);
@@ -135,11 +138,11 @@ public:
         : maximize_score_strategy(color, score_f), max_depth(depth)
     {}
 
-    pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) override
+    bitpos choose_piece_position(const game &g, positions possible_positions) override
     {
         int max_score = INT_MIN;
-        pos max_p;
-        for (pos p : possible_positions) {
+        bitpos max_p = 0;
+        for (bitpos p : possible_positions) {
             int score = score_game_state(g.test_piece(p), max_depth);
             if (score >= max_score) {
                 max_score = score;

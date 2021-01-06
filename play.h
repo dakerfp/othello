@@ -21,19 +21,19 @@ public:
 
     virtual void reset(piece_color color_) { color = color_; }
 
-    virtual pos choose_piece_position(const game &g, const std::vector<pos> &possible_positions) = 0;
+    virtual bitpos choose_piece_position(const game &g, positions possible_positions) = 0;
 
     piece_color player() const { return color; }
 };
 
 
-pos play_player(strategy *s, game &g) {
+bitpos play_player(strategy *s, game &g) {
     assert(g.player() == s->player());
     
-    std::vector<pos> possible_positions = g.possible_place_positions();
-    assert(!possible_positions.empty());
+    auto possible_positions = g.possible_place_positions();
+    assert(possible_positions.size() != 0);
 
-    pos p = s->choose_piece_position(g, possible_positions);
+    bitpos p = s->choose_piece_position(g, possible_positions);
     g.place_piece(p);
 
     return p;
@@ -56,10 +56,10 @@ piece_color play(game &game,
         pos p;
         switch (game.player()) {
         case othello::white:
-            p = play_player(strategy_white, game);
+            p = pos::from_bitpos(play_player(strategy_white, game));
             break;
         case othello::black:
-            p = play_player(strategy_black, game);
+            p = pos::from_bitpos(play_player(strategy_black, game));
             break;
         default:
             break; // ignore
@@ -70,9 +70,9 @@ piece_color play(game &game,
     return game.winner();
 }
 
-bool replay(const std::vector<pos> &positions, piece_color winner) {
+bool replay(const std::vector<bitpos> &recorded, piece_color winner) {
     game g;
-    for (auto p : positions) {
+    for (auto p : recorded) {
         if (!g.player_can_place_any_piece(g.player()))
             g.flip_player();
         if (g.is_game_over())

@@ -20,7 +20,6 @@ std::string to_string(piece_color c) {
     }
 }
 
-
 constexpr int clamp(int n)
 {
     if (n < 0)
@@ -70,18 +69,18 @@ bool parse_pos(std::string s, othello::pos &pos)
     return false;
 }
 
-std::vector<pos> parse_game_positions(std::string line)
+std::vector<bitpos> parse_game_positions(std::string line)
 {
-    std::vector<pos> positions;
+    std::vector<bitpos> replay;
     std::stringstream lines(line);
     std::string token;
     while (lines >> token) {
         pos p;
         if (!parse_pos(token, p))
-            return std::vector<pos>();
-        positions.push_back(p);
+            return {};
+        replay.push_back(p.to_bitpos());
     }
-    return positions;
+    return replay;
 }
 
 }

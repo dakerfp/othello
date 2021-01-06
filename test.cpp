@@ -45,6 +45,37 @@ void test_positions()
     assert(count == 2);
 }
 
+bool next_bitpos_is_valid(othello::bitpos b, othello::direction d)
+{
+    auto np = othello::next_bitpos(b, d);
+    return othello::is_bitpos_valid(np);
+}
+
+void test_bitpos_direction()
+{
+    othello::pos p = {3,3};
+    othello::bitpos bp = p.to_bitpos();
+
+    for (auto d : othello::directions::all)
+        assert(next_bitpos_is_valid(bp, d));
+
+    p = {0,0};
+    bp = p.to_bitpos();
+    cout << othello::mask::south << " " << popcount(othello::mask::south) << endl;
+    cout << bp << endl;
+    cout << (bp & ~othello::mask::south) << " " << popcount((bp & ~othello::mask::south)) << endl;
+    cout << ((bp & ~othello::mask::south) >> 8) << " " << popcount((bp & ~othello::mask::south) >> 8) << endl;
+    assert(!next_bitpos_is_valid(bp, othello::directions::N));
+    assert(!next_bitpos_is_valid(bp, othello::directions::NW));
+    assert(!next_bitpos_is_valid(bp, othello::directions::NE));
+    assert(!next_bitpos_is_valid(bp, othello::directions::W));
+    assert(!next_bitpos_is_valid(bp, othello::directions::SW));
+    assert(next_bitpos_is_valid(bp, othello::directions::S));
+    assert(next_bitpos_is_valid(bp, othello::directions::SE));
+    assert(next_bitpos_is_valid(bp, othello::directions::E));
+
+}
+
 void test_initial_condition_and_first_placement()
 {
     othello::game g;
@@ -74,7 +105,7 @@ void test_initial_condition_and_first_placement()
 struct replay {
     othello::piece_color winner;
     const char * log;
-    const vector<othello::pos> positions() const {
+    const auto positions() const {
         return othello::io::parse_game_positions(log);
     }
 };
@@ -84,10 +115,14 @@ void test_parse_game_positions()
     assert(othello::io::to_string({0,0}) == "a1");
     assert(othello::io::to_string({7,7}) == "h8");
 
-    vector<othello::pos> positions = othello::io::parse_game_positions("a1 b2 c3 d4 e5 f6 g7 h8");
-    assert(positions.size() == 8);
-    for (unsigned i = 0; i < positions.size(); i++)
-        assert(positions[i] == othello::pos(i, i));
+    auto replay = othello::io::parse_game_positions("a1 b2 c3 d4 e5 f6 g7 h8");
+    assert(replay.size() == 8);
+    int i = 0;
+    for (othello::bitpos p : replay) {
+        othello::pos pt = {i, i};
+        assert(p == pt.to_bitpos());
+        i++;
+    }
 }
 
 static replay replays[] = {
@@ -139,6 +174,7 @@ void test_benchmark_winrate()
 int main()
 {
     test_positions();
+    test_bitpos_direction();
     test_initial_condition_and_first_placement();
     test_parse_game_positions();
     test_replays();

@@ -123,6 +123,10 @@ struct positions {
     constexpr static positions all() {
         return {~uint64(0)};
     }
+
+    constexpr static positions none() {
+        return {~uint64(0)};
+    }
 };
 
 namespace mask {
@@ -153,7 +157,7 @@ namespace mask {
         bit(4, 0) | bit(5, 0) | bit(6, 0) | bit(6, 0);
     constexpr bitmap8x8 south =
         bit(0, util::last) | bit(1, util::last) | bit(2, util::last) | bit(3, util::last) |
-        bit(4, util::last) | bit(5, util::last) | bit(6, util::last) | bit(6, util::last);
+        bit(4, util::last) | bit(5, util::last) | bit(6, util::last) | bit(7, util::last);
     constexpr bitmap8x8 west =
         bit(0, 0) | bit(0, 1) | bit(0, 2) | bit(0, 3) |
         bit(0, 4) | bit(0, 5) | bit(0, 6) | bit(0, 7);
@@ -186,14 +190,14 @@ using namespace directions;
 constexpr bitpos next_bitpos(bitpos b, direction d) {
     switch (d)
     {
-    case N: return (b ^ mask::north) << 8;
-    case S: return (b ^ mask::south) >> 8;
-    case W: return (b ^ mask::west) << 1;
-    case E: return (b ^ mask::east) >> 1;
-    case NW: return (b ^ mask::nw) << 9;
-    case NE: return (b ^ mask::ne) << 7;
-    case SW: return (b ^ mask::sw) >> 7;
-    case SE: return (b ^ mask::se) >> 9;
+    case N: return (b & ~mask::north) >> 8;
+    case S: return (b & ~mask::south) << 8;
+    case W: return (b & ~mask::west) >> 1;
+    case E: return (b & ~mask::east) << 1;
+    case NW: return (b & ~mask::nw) >> 9;
+    case NE: return (b & ~mask::ne) >> 7;
+    case SW: return (b & ~mask::sw) << 7;
+    case SE: return (b & ~mask::se) << 9;
     default:
         return 0;
     }
@@ -218,43 +222,43 @@ public:
         whites = blacks = 0;
     }
 
-    constexpr piece_color get(index i) const
+    constexpr piece_color get(bitpos b) const
     {
-        uint64 white_bit = (whites >> i) & 0x01;
-        uint64 black_bit = (blacks >> i) & 0x01;
+        int i = util::to_index(b);
+        uint64 white_bit = (whites & b) >> i;
+        uint64 black_bit = (blacks & b) >> i;
         return piece_color(white_bit | (black_bit << 1));
     }
 
     constexpr piece_color get(const pos &p) const
     {
-        int index = util::index_from_pos(p);
-        return get(index);
+        return get(p.to_bitpos());
     }
 
-    constexpr void set_white(index i)
+    constexpr void set_white(bitpos p)
     {
-        whites |= util::bit(i);
-        blacks &= ~util::bit(i);
+        whites |= p;
+        blacks &= ~p;
     }
 
-    constexpr void set_black(index i)
+    constexpr void set_black(bitpos p)
     {
-        blacks |= util::bit(i);
-        whites &= ~util::bit(i);
+        blacks |= p;
+        whites &= ~p;
     }
 
-    constexpr void set_none(index i)
+    constexpr void set_none(bitpos p)
     {
-        whites &= ~util::bit(i);
-        blacks &= ~util::bit(i);
+        whites &= ~p;
+        blacks &= ~p;
     }
 
-    constexpr void set(index i, piece_color c)
+    constexpr void set(bitpos p, piece_color c)
     {
         if (c == white) {
-            set_white(i);
+            set_white(p);
         } else { // XXX ignore none
-            set_black(i);
+            set_black(p);
         }
     }
 
