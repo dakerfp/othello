@@ -9,12 +9,13 @@
 #include "io.h"
 
 using namespace std;
+using namespace othello;
 
 void test_positions()
 {
-    othello::bitmap8x8 bmp = othello::util::bit(42);
-    othello::positions poss = {bmp};
-    assert(bmp == othello::uint64(1) << 42);
+    bitmap8x8 bmp = util::bit(42);
+    positions poss = {bmp};
+    assert(bmp == uint64(1) << 42);
     assert(poss.size() == 1);
 
     bmp = 0;
@@ -22,21 +23,21 @@ void test_positions()
     assert(poss.size() == 0);
     assert(poss.begin() == poss.end());
 
-    bmp = othello::util::bit(7) | othello::util::bit(42);
+    bmp = util::bit(7) | util::bit(42);
     poss = {bmp};
     assert(poss.size() == 2);
 
     auto it = poss.begin();
-    assert(*it == othello::util::bit(7));
+    assert(*it == util::bit(7));
     ++it;
     assert(it.index() == 42);
-    assert(*it == othello::util::bit(42));
+    assert(*it == util::bit(42));
     ++it;
     assert(*it == 0);
     assert(it == poss.end());
 
     int count = 0;
-    for (othello::bitpos p : poss) {
+    for (bitpos p : poss) {
         assert(p != 0);
         count++;
         if (count > 10)
@@ -45,93 +46,93 @@ void test_positions()
     assert(count == 2);
 }
 
-bool next_bitpos_is_valid(othello::bitpos b, othello::direction d)
+bool next_bitpos_is_valid(bitpos b, direction d)
 {
-    auto np = othello::next_bitpos(b, d);
-    return othello::is_bitpos_valid(np);
+    auto np = next_bitpos(b, d);
+    return is_bitpos_valid(np);
 }
 
 void test_bitpos_direction()
 {
-    othello::pos p = {3,3};
-    othello::bitpos bp = p.to_bitpos();
+    pos p = {3,3};
+    bitpos bp = p.to_bitpos();
 
-    for (auto d : othello::directions::all)
+    for (auto d : directions::all)
         assert(next_bitpos_is_valid(bp, d));
 
     p = {0,0};
     bp = p.to_bitpos();
-    cout << othello::mask::south << " " << popcount(othello::mask::south) << endl;
+    cout << mask::south << " " << popcount(mask::south) << endl;
     cout << bp << endl;
-    cout << (bp & ~othello::mask::south) << " " << popcount((bp & ~othello::mask::south)) << endl;
-    cout << ((bp & ~othello::mask::south) >> 8) << " " << popcount((bp & ~othello::mask::south) >> 8) << endl;
-    assert(!next_bitpos_is_valid(bp, othello::directions::N));
-    assert(!next_bitpos_is_valid(bp, othello::directions::NW));
-    assert(!next_bitpos_is_valid(bp, othello::directions::NE));
-    assert(!next_bitpos_is_valid(bp, othello::directions::W));
-    assert(!next_bitpos_is_valid(bp, othello::directions::SW));
-    assert(next_bitpos_is_valid(bp, othello::directions::S));
-    assert(next_bitpos_is_valid(bp, othello::directions::SE));
-    assert(next_bitpos_is_valid(bp, othello::directions::E));
+    cout << (bp & ~mask::south) << " " << popcount((bp & ~mask::south)) << endl;
+    cout << ((bp & ~mask::south) >> 8) << " " << popcount((bp & ~mask::south) >> 8) << endl;
+    assert(!next_bitpos_is_valid(bp, directions::N));
+    assert(!next_bitpos_is_valid(bp, directions::NW));
+    assert(!next_bitpos_is_valid(bp, directions::NE));
+    assert(!next_bitpos_is_valid(bp, directions::W));
+    assert(!next_bitpos_is_valid(bp, directions::SW));
+    assert(next_bitpos_is_valid(bp, directions::S));
+    assert(next_bitpos_is_valid(bp, directions::SE));
+    assert(next_bitpos_is_valid(bp, directions::E));
 
 }
 
 void test_initial_condition_and_first_placement()
 {
-    othello::game g;
+    game g;
 
     assert(g.size == 8);
-    assert(g.player() == othello::white);
+    assert(g.player() == white);
 
-    assert(g.count_pieces(othello::white) == 2);
-    assert(g.count_pieces(othello::black) == 2);
-    assert(g.count_pieces(othello::none) == 8 * 8 - 4);
+    assert(g.count_pieces(white) == 2);
+    assert(g.count_pieces(black) == 2);
+    assert(g.count_pieces(none) == 8 * 8 - 4);
     assert(!g.is_game_over());
 
-    assert(g.can_play({5, 3}, othello::white));
-    assert(!g.can_play({5, 3}, othello::black));
-    assert(!g.can_play({3, 3}, othello::white));
+    assert(g.can_play({5, 3}, white));
+    assert(!g.can_play({5, 3}, black));
+    assert(!g.can_play({3, 3}, white));
 
     g.place_piece({5, 3});
 
-    assert(!g.can_play({5, 3}, othello::black));
-    assert(!g.can_play({5, 3}, othello::white));
-    assert(g.player() == othello::black);
-    assert(g.count_pieces(othello::white) == 4);
-    assert(g.count_pieces(othello::black) == 1);
-    assert(g.count_pieces(othello::none) == 8 * 8 - 5);
+    assert(!g.can_play({5, 3}, black));
+    assert(!g.can_play({5, 3}, white));
+    assert(g.player() == black);
+    assert(g.count_pieces(white) == 4);
+    assert(g.count_pieces(black) == 1);
+    assert(g.count_pieces(none) == 8 * 8 - 5);
 }
-
-struct replay {
-    othello::piece_color winner;
-    const char * log;
-    const auto positions() const {
-        return othello::io::parse_game_positions(log);
-    }
-};
 
 void test_parse_game_positions()
 {
-    assert(othello::io::to_string({0,0}) == "a1");
-    assert(othello::io::to_string({7,7}) == "h8");
+    assert(io::to_string({0,0}) == "a1");
+    assert(io::to_string({7,7}) == "h8");
 
-    auto replay = othello::io::parse_game_positions("a1 b2 c3 d4 e5 f6 g7 h8");
+    auto replay = io::parse_game_positions("a1 b2 c3 d4 e5 f6 g7 h8");
     assert(replay.size() == 8);
     int i = 0;
-    for (othello::bitpos p : replay) {
-        othello::pos pt = {i, i};
+    for (bitpos p : replay) {
+        pos pt = {i, i};
         assert(p == pt.to_bitpos());
         i++;
     }
 }
 
-static replay replays[] = {
-    {othello::white, "d6 c6 f4 d3 d2 e6 c7 e3 f3 c5 b6 b7 a7 a6 f6 f2 b4 c8 a8 g7 g1 e2 d7 c3 f5 g2 h1 d8 a5 g5 c4 g3 h5 e7 h8 h6 b8 c1 f7 g4 b5 h2 e1 f1 e8 c2 h3 a4 a3 b2 h4 f8 a1 d1 b3 g6 g8 a2 b1 h7"},
+struct test_replay {
+    piece_color winner;
+    const char * log;
+    const auto positions() const {
+        return io::parse_game_positions(log);
+    }
 };
 
-void test_replay(const replay &r)
+static test_replay replays[] = {
+    {white, "d6 c6 f4 d3 d2 e6 c7 e3 f3 c5 b6 b7 a7 a6 f6 f2 b4 c8 a8 g7 g1 e2 d7 c3 f5 g2 h1 d8 a5 g5 c4 g3 h5 e7 h8 h6 b8 c1 f7 g4 b5 h2 e1 f1 e8 c2 h3 a4 a3 b2 h4 f8 a1 d1 b3 g6 g8 a2 b1 h7"},
+};
+
+void test_replay(const test_replay &r)
 {
-    assert(othello::replay(r.positions(), r.winner));
+    assert(replay(r.positions(), r.winner));
 }
 
 void test_replays()
@@ -142,16 +143,16 @@ void test_replays()
 
 void test_benchmark_winrate()
 {
-    othello::random_strategy random;
-    othello::random_strategy_with_borders_first random_with_borders_first;
-    othello::random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
-    othello::maximize_score_strategy max_pieces;
-    othello::minmax_strategy minmax2(othello::none, 2);
-    othello::minmax_strategy minmax4(othello::none, 4);
-    othello::minmax_strategy minmax2corners(othello::none, 2, othello::pieces_diff_score_with_borders_and_corners);
-    othello::minmax_strategy minmax4corners(othello::none, 4, othello::pieces_diff_score_with_borders_and_corners);
+    random_strategy random;
+    random_strategy_with_borders_first random_with_borders_first;
+    random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
+    maximize_score_strategy max_pieces;
+    minmax_strategy minmax2(none, 2);
+    minmax_strategy minmax4(none, 4);
+    minmax_strategy minmax2corners(none, 2, pieces_diff_score_with_borders_and_corners);
+    minmax_strategy minmax4corners(none, 4, pieces_diff_score_with_borders_and_corners);
 
-    vector<othello::strategy *> all = {
+    vector<strategy *> all = {
         &random,
         &random_with_borders_first,
         &random_with_borders_and_corners_first,
@@ -162,13 +163,13 @@ void test_benchmark_winrate()
         &minmax4corners
     };
 
-    assert(othello::better_than(&random_with_borders_first, &random));
-    assert(othello::better_than(&random_with_borders_and_corners_first, &random_with_borders_first, 0.05)); // eps = 0.05
-    assert(othello::better_than(&max_pieces, &random_with_borders_first, 0.05)); // eps = 0.05
-    assert(othello::better_than(&max_pieces, &minmax2));
-    assert(othello::better_than(&minmax2corners, &minmax2));
-    // assert(othello::better_than(&minmax4, &minmax2));
-    // assert(othello::better_than(&minmax4corners, &minmax4));
+    assert(better_than(&random_with_borders_first, &random));
+    assert(better_than(&random_with_borders_and_corners_first, &random_with_borders_first, 0.05)); // eps = 0.05
+    assert(better_than(&max_pieces, &random_with_borders_first, 0.05)); // eps = 0.05
+    assert(better_than(&max_pieces, &minmax2));
+    assert(better_than(&minmax2corners, &minmax2));
+    // assert(better_than(&minmax4, &minmax2));
+    // assert(better_than(&minmax4corners, &minmax4));
 }
 
 int main()
