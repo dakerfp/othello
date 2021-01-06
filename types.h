@@ -269,19 +269,19 @@ public:
         set(util::index_from_pos(p), c);
     }
 
-    constexpr int count_whites(uint64 mask=mask::all) const {
+    constexpr int count_whites(bitmap8x8 mask=mask::all) const {
         return popcount(whites & mask);
     }
 
-    constexpr int count_blacks(uint64 mask=mask::all) const {
+    constexpr int count_blacks(bitmap8x8 mask=mask::all) const {
         return popcount(blacks & mask);
     }
 
-    constexpr uint64 nones() const {
+    constexpr bitmap8x8 nones() const {
         return ~(whites | blacks);
     }
 
-    constexpr uint64 count_nones() const {
+    constexpr int count_nones() const {
         return popcount(nones());
     }
 
