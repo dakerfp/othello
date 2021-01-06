@@ -1,5 +1,7 @@
 #include "othello.h"
+#include "colors.h"
 
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -13,46 +15,66 @@ void benchmark_strategies(unsigned repeat, const vector<strategy *> &strategies)
     auto winmatrix = winrate_matrix(strategies, repeat);
     auto acc_scores = accumulate_score(winmatrix);
 
-    for (unsigned i = 0; i < winmatrix.size(); i++) {
-        for (unsigned j = 0; j < winmatrix.size(); j++) {
-            cout << strategies[i]->description()
-                << " vs "
-                << strategies[j]->description()
-                << ": "
-                << winmatrix[i][j]
-                << endl;
-        }
-        cout << "------------------------\n";
-    }
+    // header
+    for (unsigned i = 0; i < strategies.size(); i++)
+        cout << "\t" << i;
+    cout << endl;
 
-    cout << "acccumulated scores:\n";
-    for (unsigned i = 0; i < strategies.size(); i++) {
-        cout << '\t' << acc_scores[i] << "\t - " << strategies[i]->description() << endl;
+    double sum_scores  = 0;
+    for (auto score : acc_scores)
+        sum_scores += score;
+    double avg_score = sum_scores / strategies.size();
+
+    // body
+    for (unsigned i = 0; i < winmatrix.size(); i++) {
+        // row
+        cout << i << "\t";
+        for (unsigned j = 0; j < winmatrix.size(); j++) {
+            double wr = winmatrix[i][j];
+            auto label_color = WHITE;
+            if (fabs(wr - 0.5) <= 0.2) {
+                label_color = WHITE;
+            } else if (wr > 0.5) {
+                label_color = GREEN;
+            } else {
+                label_color = RED;
+            }
+            cout << label_color <<  wr << "\t";
+        }
+        auto label_color = (acc_scores[i] > avg_score) ? GREEN : RED;
+        cout << RESET << "- "
+            << label_color << acc_scores[i]
+            << RESET << '\t' << strategies[i]->description()
+            << endl;
     }
+    cout << "-----------------------------------------------\n";
+    cout << "acccumulated scores:\n";
+    for (unsigned i = 0; i < strategies.size(); i++)
+        cout << '\t' << acc_scores[i] << "\t - " << strategies[i]->description() << endl;
 }
+
+random_strategy random_s;
+random_strategy_with_borders_first random_with_borders_first;
+random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
+maximize_score_strategy max_pieces;
+maximize_score_strategy max_liberty(none, maximize_possible_place_positions);
+minmax_strategy minmax2(none, 2);
+minmax_strategy minmax4(none, 4);
+minmax_strategy minmax2corners(none, 2, pieces_diff_score_with_borders_and_corners);
+minmax_strategy minmax4corners(none, 4, pieces_diff_score_with_borders_and_corners);
+minmax_strategy minmax4cornersLiberty(none, 4, maximize_possible_place_positions);
 
 void benchmark(unsigned repeat)
 {
-    random_strategy random;
-    random_strategy_with_borders_first random_with_borders_first;
-    random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
-    maximize_score_strategy max_pieces;
-    maximize_score_strategy max_liberty(none, maximize_possible_place_positions);
-    minmax_strategy minmax2(none, 2);
-    minmax_strategy minmax4(none, 4);
-    minmax_strategy minmax2corners(none, 2, pieces_diff_score_with_borders_and_corners);
-    minmax_strategy minmax4corners(none, 4, pieces_diff_score_with_borders_and_corners);
 
     vector<strategy *> strategies = {
-        &random,
+        &random_s,
         &random_with_borders_first,
         &random_with_borders_and_corners_first,
         &max_pieces,
         &max_liberty,
-        &minmax2
-        // &minmax4,
-        // &minmax2corners,
-        // &minmax4corners
+        &minmax2,
+        &minmax4
     };
 
     benchmark_strategies(repeat, strategies);
