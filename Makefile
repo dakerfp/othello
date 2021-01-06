@@ -16,12 +16,12 @@ benchmark: benchmark.cpp
 	$(CC) $(CXXFLAGS) $< -o $@
 
 run_benchmark: benchmark
-	./benchmark 1000
+	./benchmark 10000
 
 perf: perf-kernel.svg
 
 perf-report: benchmark
-	./benchmark 10000 &
+	./benchmark 100000 &
 	sudo perf record -F 99 -p `pgrep benchmark` -g -- sleep 60
 	pgrep benchmark | xargs kill -9
 
