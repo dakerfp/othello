@@ -62,10 +62,6 @@ void test_bitpos_direction()
 
     p = {0,0};
     bp = p.to_bitpos();
-    cout << mask::south << " " << popcount(mask::south) << endl;
-    cout << bp << endl;
-    cout << (bp & ~mask::south) << " " << popcount((bp & ~mask::south)) << endl;
-    cout << ((bp & ~mask::south) >> 8) << " " << popcount((bp & ~mask::south) >> 8) << endl;
     assert(!next_bitpos_is_valid(bp, directions::N));
     assert(!next_bitpos_is_valid(bp, directions::NW));
     assert(!next_bitpos_is_valid(bp, directions::NE));
@@ -74,7 +70,6 @@ void test_bitpos_direction()
     assert(next_bitpos_is_valid(bp, directions::S));
     assert(next_bitpos_is_valid(bp, directions::SE));
     assert(next_bitpos_is_valid(bp, directions::E));
-
 }
 
 void test_initial_condition_and_first_placement()
