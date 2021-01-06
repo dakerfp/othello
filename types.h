@@ -10,9 +10,10 @@
 namespace othello {
 
 enum piece_color {
-    none = 0,
+    none  = 0,
     white = 1 << 0,
-    black = 1 << 1
+    black = 1 << 1,
+    any   = 1 << 2,
 };
 
 constexpr piece_color opposite(piece_color c)
@@ -269,28 +270,18 @@ public:
         set(util::index_from_pos(p), c);
     }
 
-    constexpr int count_whites(bitmap8x8 mask=mask::all) const {
-        return popcount(whites & mask);
-    }
-
-    constexpr int count_blacks(bitmap8x8 mask=mask::all) const {
-        return popcount(blacks & mask);
-    }
-
-    constexpr bitmap8x8 nones() const {
+    constexpr bitmap8x8 nones(bitmap8x8 mask=mask::all) const
+    {
         return ~(whites | blacks);
     }
 
-    constexpr int count_nones() const {
-        return popcount(nones());
-    }
-
-    int count(piece_color pc) const {
-        switch (pc) {
-        case white: return count_whites();
-        case black: return count_blacks();
-        case none: return count_nones();
-        default: return 0;
+    template<piece_color color>
+    constexpr int count(bitmap8x8 mask=mask::all) const {
+        switch (color) {
+        case white: return popcount(whites & mask);
+        case black: return popcount(blacks & mask);
+        case none: return popcount(nones() & mask);
+        default: return popcount((whites | blacks) | mask);
         }
     }
 };

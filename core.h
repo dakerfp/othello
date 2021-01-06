@@ -154,8 +154,7 @@ public:
     positions possible_place_positions() const
     {
         positions possible_positions = {0};
-        positions search = {board.nones()};
-        for (bitpos p : search) {
+        for (bitpos p : positions{board.nones()}) {
             if (can_play(p, player()))
                 possible_positions.set_bit(p);
         }
@@ -164,8 +163,7 @@ public:
 
     bool player_can_place_any_piece(piece_color pc) const
     {
-        positions search = {board.nones()};
-        for (bitpos p : search) {
+        for (bitpos p : positions{board.nones()}) {
             if (can_play(p, pc))
                 return true;
         }
@@ -178,29 +176,18 @@ public:
             !player_can_place_any_piece(opposite(player()));
     }
 
-    int count_pieces(piece_color pc) const {
-        if (pc == white)
-            return board.count_whites();
-        if (pc == black)
-            return board.count_blacks();
-
-        return board.count_nones(); // XXX: should all be supporte
-    }
-
-    constexpr int count_whites(uint64 mask=mask::all) const {
-        return board.count_whites(mask);
-    }
-
-    constexpr int count_blacks(uint64 mask=mask::all) const {
-        return board.count_blacks(mask);
+    template<piece_color color>
+    int count(bitmap8x8 mask=mask::all) const {
+        return board.count<color>(mask);
     }
 
     piece_color winner() const {
-        int pw = count_whites();
-        int pb = count_blacks();
+        int pw = count<white>();
+        int pb = count<black>();
         if (pb == pw)
             return none;
-        return pw > pb ? white : black;
+        else
+            return pw > pb ? white : black;
     }
 
     void flip_player() {

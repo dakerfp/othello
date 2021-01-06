@@ -31,18 +31,18 @@ struct score_function_register {
 
 const score_function_register pieces_diff_score = {
     "diff #pieces",
-    [](const game &g){ return g.count_whites() - g.count_blacks(); }
+    [](const game &g){ return g.count<white>() - g.count<black>(); }
 };
 
 int pieces_diff_score_with_borders_and_corners_(const game &g, int corner_score = 6, int border_score = 2)
 {
     return
-        + g.count_whites(mask::inner)
-        + g.count_whites(mask::border) * border_score
-        + g.count_whites(mask::corners) * corner_score
-        - g.count_blacks(mask::inner)
-        - g.count_blacks(mask::border) * border_score
-        - g.count_blacks(mask::corners) * corner_score;
+        + g.count<white>(mask::inner)
+        + g.count<white>(mask::border) * border_score
+        + g.count<white>(mask::corners) * corner_score
+        - g.count<black>(mask::inner)
+        - g.count<black>(mask::border) * border_score
+        - g.count<black>(mask::corners) * corner_score;
 }
 
 const score_function_register pieces_diff_score_with_borders_and_corners = {

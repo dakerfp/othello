@@ -84,9 +84,9 @@ void test_initial_condition_and_first_placement()
     assert(g.size == 8);
     assert(g.player() == white);
 
-    assert(g.count_pieces(white) == 2);
-    assert(g.count_pieces(black) == 2);
-    assert(g.count_pieces(none) == 8 * 8 - 4);
+    assert(g.count<white>() == 2);
+    assert(g.count<black>() == 2);
+    assert(g.count<none>() == 8 * 8 - 4);
     assert(!g.is_game_over());
 
     assert(g.can_play({5, 3}, white));
@@ -98,9 +98,9 @@ void test_initial_condition_and_first_placement()
     assert(!g.can_play({5, 3}, black));
     assert(!g.can_play({5, 3}, white));
     assert(g.player() == black);
-    assert(g.count_pieces(white) == 4);
-    assert(g.count_pieces(black) == 1);
-    assert(g.count_pieces(none) == 8 * 8 - 5);
+    assert(g.count<white>() == 4);
+    assert(g.count<black>() == 1);
+    assert(g.count<none>() == 8 * 8 - 5);
 }
 
 void test_parse_game_positions()
