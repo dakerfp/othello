@@ -134,7 +134,7 @@ private:
 public:
     std::string description() const override { return std::string("minmax ") + std::to_string(max_depth) + " (" + score_f.description + ")"; }
 
-    minmax_strategy(piece_color color=none, int depth=4, const score_function_register &score_f=pieces_diff_score)
+    minmax_strategy(piece_color color=none, int depth=6, const score_function_register &score_f=pieces_diff_score_with_borders_and_corners)
         : maximize_score_strategy(color, score_f), max_depth(depth)
     {}
 
