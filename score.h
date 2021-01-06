@@ -23,17 +23,6 @@ int terminal_score(const game &g, piece_color player)
     return 0;
 }
 
-struct score_function_register {
-    std::string description;
-    const score_function &eval;
-    int operator()(const game &g) const { return eval(g); }
-};
-
-const score_function_register pieces_diff_score = {
-    "diff #pieces",
-    [](const game &g){ return g.count<white>() - g.count<black>(); }
-};
-
 int pieces_diff_score_with_borders_and_corners_(const game &g, int corner_score = 6, int border_score = 2)
 {
     return
@@ -45,9 +34,35 @@ int pieces_diff_score_with_borders_and_corners_(const game &g, int corner_score 
         - g.count<black>(mask::corners) * corner_score;
 }
 
+int maximize_possible_place_positions_(const game &g, int corner_score = 6)
+{
+    int cur_player_score =
+        + popcount(g.possible_place_positions().bitmap)
+        + g.count<white>(mask::corners) * corner_score
+        - g.count<black>(mask::corners) * corner_score;
+
+    return (g.player() == white) ? cur_player_score : -cur_player_score;;
+}
+
+struct score_function_register {
+    std::string description;
+    const score_function &eval;
+    int operator()(const game &g) const { return eval(g); }
+};
+
+const score_function_register pieces_diff_score = {
+    "diff #pieces",
+    [](const game &g){ return g.count<white>() - g.count<black>(); }
+};
+
 const score_function_register pieces_diff_score_with_borders_and_corners = {
     "#pieces with corners(6) and borders(2)",
     [](const game &g){ return pieces_diff_score_with_borders_and_corners_(g, 6, 2); }
+};
+
+const score_function_register maximize_possible_place_positions = {
+    "# available positions + corners(6)",
+    [](const game &g){ return maximize_possible_place_positions_(g, 6); }
 };
 
 }
