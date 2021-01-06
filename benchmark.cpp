@@ -8,6 +8,29 @@
 using namespace std;
 using namespace othello;
 
+void benchmark_strategies(unsigned repeat, const vector<strategy *> &strategies)
+{
+    auto winmatrix = winrate_matrix(strategies, repeat);
+    auto acc_scores = accumulate_score(winmatrix);
+
+    for (unsigned i = 0; i < winmatrix.size(); i++) {
+        for (unsigned j = 0; j < winmatrix.size(); j++) {
+            cout << strategies[i]->description()
+                << " vs "
+                << strategies[j]->description()
+                << ": "
+                << winmatrix[i][j]
+                << endl;
+        }
+        cout << "------------------------\n";
+    }
+
+    cout << "acccumulated scores:\n";
+    for (unsigned i = 0; i < strategies.size(); i++) {
+        cout << '\t' << acc_scores[i] << "\t - " << strategies[i]->description() << endl;
+    }
+}
+
 void benchmark(unsigned repeat)
 {
     random_strategy random;
@@ -32,25 +55,7 @@ void benchmark(unsigned repeat)
         // &minmax4corners
     };
 
-    auto winmatrix = winrate_matrix(strategies, repeat);
-    auto acc_scores = accumulate_score(winmatrix);
-
-    for (unsigned i = 0; i < winmatrix.size(); i++) {
-        for (unsigned j = 0; j < winmatrix.size(); j++) {
-            cout << strategies[i]->description()
-                << " vs "
-                << strategies[j]->description()
-                << ": "
-                << winmatrix[i][j]
-                << endl;
-        }
-        cout << "------------------------\n";
-    }
-
-    cout << "acccumulated scores:\n";
-    for (unsigned i = 0; i < strategies.size(); i++) {
-        cout << '\t' << acc_scores[i] << "\t - " << strategies[i]->description() << endl;
-    }
+    benchmark_strategies(repeat, strategies);
 }
 
 int main(int argc, const char * argv[]) {

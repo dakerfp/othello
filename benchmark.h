@@ -5,12 +5,12 @@
 #include <cassert>
 #include <numeric>
 #include <vector>
+#include <iostream>
 
 #include "core.h"
 
 using namespace std;
-
-namespace othello {
+using namespace othello;
 
 double wincount(strategy *strategy_white, strategy *strategy_black, unsigned n)
 {
@@ -32,6 +32,7 @@ double wincount(strategy *strategy_white, strategy *strategy_black, unsigned n)
             wins += 0.5;
         }
     }
+
     return wins;
 }
 
@@ -80,8 +81,6 @@ vector<double> accumulate_score(const std::vector<std::vector<double>> &winmatri
             scores[i] += v;
     }
     return scores;
-}
-
 }
 
 #endif
