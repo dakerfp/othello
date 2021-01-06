@@ -109,6 +109,21 @@ std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color
     return move(unique_ptr<othello::strategy>(strategies[index].build(color)));
 }
 
+function<void(const othello::pos &p)> make_logpos_from_filename(ofstream &file, string filename)
+{
+    if (filename.empty())
+        return nullptr;
+
+    file.open(filename);
+    return [&file](const othello::pos &p) {
+        if (!file.good()) {
+            cerr << "file is not good" << endl;
+            return;
+        }
+        file << othello::io::to_string(p) << " ";
+    };
+}
+
 void print_strategy_indexes()
 {
     unsigned i = 0;
@@ -188,25 +203,12 @@ int main(int argc, char* argv[])
     cout << othello_billboard << endl;
 
     othello::game game;
+    ofstream file;
     unique_ptr<othello::strategy> strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
     unique_ptr<othello::strategy> strategy_black = make_strategy_from_index(othello::black, arg_black_strategy);
+    function<void(const othello::pos &p)> logpos = make_logpos_from_filename(file, arg_output_log_in_file);
 
-    othello::piece_color winner;
-
-    if (arg_output_log_in_file.empty()) {
-        winner = othello::play(game, strategy_white.get(), strategy_black.get(), &print_othello_board);
-    } else {
-        ofstream file(arg_output_log_in_file);
-        auto logfile = [&file](const othello::pos &p) {
-            if (!file.good()) {
-                cerr << "file is not good" << endl;
-                return;
-            }
-            file << othello::io::to_string(p) << " ";
-        };
-        winner = othello::play(game, strategy_white.get(), strategy_black.get(), &print_othello_board, logfile);
-        file.close();
-    }
-
+    auto winner = othello::play(game, strategy_white.get(), strategy_black.get(), &print_othello_board, logpos);
     cout << endl << game_winner_message(winner) << endl;
+    file.close();
 }
