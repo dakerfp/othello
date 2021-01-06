@@ -94,7 +94,7 @@ struct strategy_index {
 
 #define STRATEGY_ROW(D, T) {D, [](othello::piece_color pc) { return new T(pc); }}
 
-static const strategy_index strategy_indexes[] = {
+static const vector<strategy_index> strategies = {
     STRATEGY_ROW("human player (default)", human_strategy),
     STRATEGY_ROW("random", othello::random_strategy),
     STRATEGY_ROW("borders first", othello::random_strategy_with_borders_first),
@@ -102,19 +102,17 @@ static const strategy_index strategy_indexes[] = {
     STRATEGY_ROW("minmax 4", othello::minmax_strategy)
 };
 
-std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color color, unsigned int index)
+std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color color, unsigned index)
 {
-    unsigned i = 0;
-    for (auto sti : strategy_indexes)
-        if (i++ == index)
-            return move(unique_ptr<othello::strategy>(sti.build(color)));
-    return nullptr;
+    if (index >= strategies.size())
+        return nullptr;
+    return move(unique_ptr<othello::strategy>(strategies[index].build(color)));
 }
 
 void print_strategy_indexes()
 {
     unsigned i = 0;
-    for (auto sti : strategy_indexes)
+    for (auto sti : strategies)
         cout << i++ << " - " << sti.description << endl;
 }
 
@@ -135,10 +133,10 @@ vector<string> argv_to_args(int argc, char* argv[])
 
 unsigned int parse_strategy_index_arg(const string &arg)
 {
-    unsigned int strategy = atoi(arg.c_str());
-    if (strategy > 3)
-        strategy = 0;
-    return strategy;
+    unsigned int index = atoi(arg.c_str());
+    if (index >= strategies.size())
+        index = 0;
+    return index;
 }
 
 unsigned int arg_white_strategy = 0;

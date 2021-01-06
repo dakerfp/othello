@@ -45,7 +45,6 @@ piece_color play(game &game,
     std::function<void(const othello::game&)> showgame=nullptr,
     std::function<void(const pos&)> logpos=nullptr)
 {
-    if (showgame) showgame(game);
     while (1) {
         if (!game.player_can_place_any_piece(game.player())) {
             if (!game.player_can_place_any_piece(opposite(game.player())))
@@ -53,6 +52,7 @@ piece_color play(game &game,
             game.flip_player();
         }
 
+        if (showgame) showgame(game);
         pos p;
         switch (game.player()) {
         case othello::white:
@@ -65,8 +65,9 @@ piece_color play(game &game,
             break; // ignore
         }
         if (logpos) logpos(p);
-        if (showgame) showgame(game);
     }
+    if (showgame) showgame(game);
+
     return game.winner();
 }
 
