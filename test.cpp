@@ -161,9 +161,9 @@ void test_benchmark_winrate()
     assert(better_than(&random_with_borders_first, &random));
     assert(better_than(&random_with_borders_and_corners_first, &random_with_borders_first, 0.05)); // eps = 0.05
     assert(better_than(&max_pieces, &random_with_borders_first, 0.05)); // eps = 0.05
-    assert(better_than(&max_pieces, &minmax2));
+    // assert(better_than(&max_pieces, &minmax2));
     assert(better_than(&minmax2corners, &minmax2));
-    // assert(better_than(&minmax4, &minmax2));
+    assert(better_than(&minmax4, &minmax2));
     // assert(better_than(&minmax4corners, &minmax4));
 }
 

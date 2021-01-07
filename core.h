@@ -50,6 +50,45 @@ class game {
         return false;
     }
 
+    void flip_player() {
+        next_player = opposite(next_player);
+    }
+
+    bool unchecked_can_play(bitpos p, piece_color player_) const
+    {
+        if (player_ == white) {
+            for (direction d : directions::all) {
+                if (can_piece_surround_in_direction<white>(p, d))
+                    return true;
+            }
+        } else { // black
+            for (direction d : directions::all) {
+                if (can_piece_surround_in_direction<black>(p, d))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool unchecked_place_piece(bitpos p)
+    {
+        if (player() == white) {
+            for (direction d : directions::all)
+                flip_pieces_in_direction<white>(p, d);
+        } else { // black
+            for (direction d : directions::all)
+                flip_pieces_in_direction<black>(p, d);
+        }
+
+        board.set(p, player());
+
+        if (player_can_place_any_piece(opposite(player())))
+            flip_player();
+
+        return true;
+    }
+
 public:
     static constexpr int size = 8;
 
@@ -88,23 +127,6 @@ public:
         next_player = white;
     }
 
-    bool unchecked_can_play(bitpos p, piece_color player_) const
-    {
-        if (player_ == white) {
-            for (direction d : directions::all) {
-                if (can_piece_surround_in_direction<white>(p, d))
-                    return true;
-            }
-        } else { // black
-            for (direction d : directions::all) {
-                if (can_piece_surround_in_direction<black>(p, d))
-                    return true;
-            }
-        }
-
-        return false;
-    }
-
     bool can_play(bitpos p, piece_color player_) const
     {
         if (!is_bitpos_valid(p))
@@ -112,24 +134,10 @@ public:
         
         return unchecked_can_play(p, player_);
     }
+
     bool can_play(const pos &p, piece_color player_) const
-    { return can_play(p.to_bitpos(), player_); }
-
-    bool unchecked_place_piece(bitpos p)
     {
-        if (player() == white) {
-            for (direction d : directions::all)
-                flip_pieces_in_direction<white>(p, d);
-        } else { // black
-            for (direction d : directions::all)
-                flip_pieces_in_direction<black>(p, d);
-        }
-
-        board.set(p, player());
-
-        flip_player();
-
-        return true;
+        return can_play(p.to_bitpos(), player_);
     }
 
     bool place_piece(bitpos p)
@@ -176,11 +184,6 @@ public:
             !player_can_place_any_piece(opposite(player()));
     }
 
-    template<piece_color color>
-    int count(bitmap8x8 mask=mask::all) const {
-        return board.count<color>(mask);
-    }
-
     piece_color winner() const {
         int pw = count<white>();
         int pb = count<black>();
@@ -190,9 +193,11 @@ public:
             return pw > pb ? white : black;
     }
 
-    void flip_player() {
-        next_player = opposite(next_player);
+    template<piece_color color>
+    int count(bitmap8x8 mask=mask::all) const {
+        return board.count<color>(mask);
     }
+
 };
 
 }

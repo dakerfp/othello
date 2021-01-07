@@ -114,10 +114,6 @@ struct positions {
     constexpr static positions all() {
         return {~uint64(0)};
     }
-
-    constexpr static positions none() {
-        return {~uint64(0)};
-    }
 };
 
 namespace mask {

@@ -26,7 +26,6 @@ public:
     piece_color player() const { return color; }
 };
 
-
 bitpos play_player(strategy *s, game &g) {
     assert(g.player() == s->player());
     
@@ -45,13 +44,7 @@ piece_color play(game &game,
     std::function<void(const othello::game&)> showgame=nullptr,
     std::function<void(const pos&)> logpos=nullptr)
 {
-    while (1) {
-        if (!game.player_can_place_any_piece(game.player())) {
-            if (!game.player_can_place_any_piece(opposite(game.player())))
-                break;
-            game.flip_player();
-        }
-
+    while (!game.is_game_over()) {
         if (showgame) showgame(game);
         pos p;
         switch (game.player()) {
@@ -71,16 +64,14 @@ piece_color play(game &game,
     return game.winner();
 }
 
-bool replay(const std::vector<bitpos> &recorded, piece_color winner) {
+bool replay(const std::vector<bitpos> &recorded, piece_color expected_winner) {
     game g;
     for (auto p : recorded) {
-        if (!g.player_can_place_any_piece(g.player()))
-            g.flip_player();
         if (g.is_game_over())
             return false; // should not have ended
         g.place_piece(p);
     }
-    return g.is_game_over() && winner == g.winner();
+    return g.is_game_over() && expected_winner == g.winner();
 }
 
 }
