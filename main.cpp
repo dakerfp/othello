@@ -16,9 +16,12 @@ BLUE     "|  |  |  _|   | -_| | | . |\n"
 BOLDBLUE "|_____|_| |_|_|___|_|_|___|\n"
 YELLOW   " Version: " VERSION "\n" RESET;
 
-string to_symbol(othello::piece_color pc)
+string to_symbol(othello::piece_color pc, bool highlight=false)
 {
-    return pc == othello::white ? (RED " X" RESET) : (BLUE " O" RESET);
+    if (highlight)
+        return pc == othello::white ? (BOLDRED " X" RESET) : (BOLDBLUE " O" RESET);
+    else
+        return pc == othello::white ? (RED " X" RESET) : (BLUE " O" RESET);
 }
 
 string game_winner_message(othello::piece_color winner)
@@ -29,7 +32,7 @@ string game_winner_message(othello::piece_color winner)
         return "winner is " + othello::io::to_string(winner);
 }
 
-void print_othello_board(const othello::game &game)
+void print_othello_board(const othello::game &game, const othello::pos &lastpos)
 {
     cout << "  ";
     for (int x = 0; x < game.size; x++)
@@ -44,7 +47,7 @@ void print_othello_board(const othello::game &game)
             {
             case othello::white:
             case othello::black:
-                cout << to_symbol(game[p.to_bitpos()]);
+                cout << to_symbol(game[p.to_bitpos()], p == lastpos);
                 break;
             default:
                 if (game.can_play(p.to_bitpos(), game.player())) {
@@ -76,13 +79,21 @@ public:
 
             string s;
             getline(cin, s);
-            if (!othello::io::parse_pos(s, p))
+            if (!othello::io::parse_pos(s, p)) {
+                parse_command(s, game);
                 continue;
+            }
 
             if (game.can_play(p.to_bitpos(), game.player()))
                 break;
         }
         return p.to_bitpos();
+    }
+
+    void parse_command(string s, const othello::game &game) {
+        if (s == "snapshot" || s == "snap") {
+            cout << io::to_string(game) << endl;
+        }
     }
 };
 

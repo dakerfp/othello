@@ -49,6 +49,34 @@ std::string to_string(const othello::pos &p)
     return std::string(1, alpha_from_index(p.x)) + std::to_string(p.y + 1);
 }
 
+constexpr char to_char(piece_color c)
+{
+    if (c == white)
+        return 'w';
+    if (c == black)
+        return 'b';
+    return '.';
+}
+
+std::string to_string(const othello::game &game)
+{
+    // line with: 'current player' : w, b or . for each following position
+    std::string s(game.size * game.size + 2, '.');
+    int i = 0;
+    s[i++] = to_char(game.player());
+    s[i++] = ':';
+    for (bitpos p : positions::all())
+        s[i++] = to_char(game[p]);
+    return s;
+}
+
+othello::game parse_game(std::string line)
+{
+    game g;
+
+    return g;
+}
+
 bool parse_pos(std::string s, othello::pos &pos)
 {
     s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
