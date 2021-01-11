@@ -77,24 +77,24 @@ void test_initial_condition_and_first_placement()
     game g;
 
     assert(g.size == 8);
-    assert(g.player() == white);
+    assert(g.player() == black);
 
     assert(g.count<white>() == 2);
     assert(g.count<black>() == 2);
     assert(g.count<none>() == 8 * 8 - 4);
     assert(!g.is_game_over());
 
-    assert(g.can_play({5, 3}, white));
-    assert(!g.can_play({5, 3}, black));
-    assert(!g.can_play({3, 3}, white));
+    assert(g.can_play({5, 4}, black));
+    assert(!g.can_play({5, 4}, white));
+    assert(!g.can_play({3, 4}, black));
 
-    g.place_piece({5, 3});
+    g.place_piece({5, 4});
 
-    assert(!g.can_play({5, 3}, black));
-    assert(!g.can_play({5, 3}, white));
-    assert(g.player() == black);
-    assert(g.count<white>() == 4);
-    assert(g.count<black>() == 1);
+    assert(!g.can_play({5, 4}, white));
+    assert(!g.can_play({5, 4}, black));
+    assert(g.player() == white);
+    assert(g.count<white>() == 1);
+    assert(g.count<black>() == 4);
     assert(g.count<none>() == 8 * 8 - 5);
 }
 
@@ -111,6 +111,15 @@ void test_parse_game_positions()
         assert(p == pt.to_bitpos());
         i++;
     }
+
+    replay = io::parse_game_positions("1a 2b 3c 4d 5e 6f 7g 8h");
+    assert(replay.size() == 8);
+    i = 0;
+    for (bitpos p : replay) {
+        pos pt = {i, i};
+        assert(p == pt.to_bitpos());
+        i++;
+    }
 }
 
 struct test_replay {
@@ -122,7 +131,7 @@ struct test_replay {
 };
 
 static test_replay replays[] = {
-    {white, "d6 c6 f4 d3 d2 e6 c7 e3 f3 c5 b6 b7 a7 a6 f6 f2 b4 c8 a8 g7 g1 e2 d7 c3 f5 g2 h1 d8 a5 g5 c4 g3 h5 e7 h8 h6 b8 c1 f7 g4 b5 h2 e1 f1 e8 c2 h3 a4 a3 b2 h4 f8 a1 d1 b3 g6 g8 a2 b1 h7"},
+    {none, "e6 d6 c5 f6 e3 c3 e7 f2 b2 b6 b4 f4 g5 d7 c6 c7 c8 f7 f3 g3 a7 a1 g2 d8 d2 a5 f8 h2 d3 b7 g1 e8 h4 f1 b8 h3 h1 d1 g4 a8 a6 g8 a4 g7 c1 e2 h8 h6 h7 b3 f5 h5 e1 a3 c2 c4 g6 b1 a2 b5"},
 };
 
 void test_replay(const test_replay &r)
@@ -160,11 +169,11 @@ void test_benchmark_winrate()
 
     assert(better_than(&random_with_borders_first, &random));
     assert(better_than(&random_with_borders_and_corners_first, &random_with_borders_first, 0.05)); // eps = 0.05
-    assert(better_than(&max_pieces, &random_with_borders_first, 0.05)); // eps = 0.05
-    // assert(better_than(&max_pieces, &minmax2));
+    assert(better_than(&max_pieces, &random_with_borders_first, 0.05));
+    assert(better_than(&minmax2, &max_pieces, 0.05));
     assert(better_than(&minmax2corners, &minmax2));
     assert(better_than(&minmax4, &minmax2));
-    // assert(better_than(&minmax4corners, &minmax4));
+    assert(better_than(&minmax4corners, &minmax4));
 }
 
 int main()

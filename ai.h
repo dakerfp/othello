@@ -104,7 +104,6 @@ public:
     }
 };
 
-
 class minmax_strategy : public maximize_score_strategy
 {
 private:

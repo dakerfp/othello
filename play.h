@@ -39,20 +39,23 @@ bitpos play_player(strategy *s, game &g) {
 }
 
 piece_color play(game &game,
-    strategy * strategy_white,
     strategy * strategy_black,
+    strategy * strategy_white,
     std::function<void(const othello::game&, const othello::pos&)> showgame=nullptr,
     std::function<void(const pos&)> logpos=nullptr)
 {
+    strategy_black->reset(black);
+    strategy_white->reset(white);
+
     pos p = {-1, -1};
     while (!game.is_game_over()) {
         if (showgame) showgame(game, p);
         switch (game.player()) {
-        case othello::white:
-            p = pos::from_bitpos(play_player(strategy_white, game));
-            break;
         case othello::black:
             p = pos::from_bitpos(play_player(strategy_black, game));
+            break;
+        case othello::white:
+            p = pos::from_bitpos(play_player(strategy_white, game));
             break;
         default:
             break; // ignore

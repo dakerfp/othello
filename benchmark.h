@@ -9,23 +9,22 @@
 
 #include "core.h"
 
+
 using namespace std;
 using namespace othello;
 
-double wincount(strategy *strategy_white, strategy *strategy_black, unsigned n)
+double wincount(strategy *strategy_black, strategy *strategy_white, unsigned n)
 {
     game game;
     double wins = 0;
 
     for (unsigned i = 0; i < n; i++) {
         game.init();
-        strategy_white->reset(white);
-        strategy_black->reset(black);
-        switch (play(game, strategy_white, strategy_black)) {
-        case white:
+        switch (play(game, strategy_black, strategy_white)) {
+        case black:
             wins += 1;
             break;
-        case black:
+        case white:
             // win_score += 0;
             break;
         default:
@@ -40,8 +39,9 @@ double winrate(strategy *a, strategy *b, unsigned n)
 {
     assert(n % 2 == 0);
 
-    double win_as_whites = wincount(a, b, n / 2);
-    double win_as_blacks = n / 2 - wincount(b, a, n / 2);
+    double win_as_blacks = wincount(a, b, n / 2);
+    double win_as_whites = n / 2 - wincount(b, a, n / 2);
+
     return (win_as_whites + win_as_blacks) / n;
 }
 

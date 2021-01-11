@@ -10,7 +10,7 @@
 namespace othello {
 
 // The higher the positive value, the better for white player.
-// The opposite applies to black-negative.
+// The opposite applies to black - negative.
 typedef std::function<int(const game &)> score_function;
 
 int terminal_score(const game &g, piece_color player)
@@ -37,11 +37,13 @@ int pieces_diff_score_with_borders_and_corners_(const game &g, int corner_score 
 int maximize_possible_place_positions_(const game &g, int corner_score = 6)
 {
     int cur_player_score =
-        + popcount(g.possible_place_positions().bitmap)
+        + ((g.player() == white)
+            ? popcount(g.possible_place_positions().bitmap)
+            : -popcount(g.possible_place_positions().bitmap))
         + g.count<white>(mask::corners) * corner_score
         - g.count<black>(mask::corners) * corner_score;
 
-    return (g.player() == white) ? cur_player_score : -cur_player_score;;
+    return cur_player_score;
 }
 
 struct score_function_register {

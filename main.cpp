@@ -215,11 +215,11 @@ int main(int argc, char* argv[])
 
     othello::game game;
     ofstream file;
-    unique_ptr<othello::strategy> strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
     unique_ptr<othello::strategy> strategy_black = make_strategy_from_index(othello::black, arg_black_strategy);
+    unique_ptr<othello::strategy> strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
     function<void(const othello::pos &p)> logpos = make_logpos_from_filename(file, arg_output_log_in_file);
 
-    auto winner = othello::play(game, strategy_white.get(), strategy_black.get(), &print_othello_board, logpos);
+    auto winner = othello::play(game, strategy_black.get(), strategy_white.get(), &print_othello_board, logpos);
     cout << endl << game_winner_message(winner) << endl;
     file.close();
 }

@@ -124,7 +124,7 @@ public:
         board.set(pos(3,4).to_bitpos(), black);
         board.set(pos(4,3).to_bitpos(), black);
 
-        next_player = white;
+        next_player = black;
     }
 
     bool can_play(bitpos p, piece_color player_) const
@@ -180,8 +180,7 @@ public:
 
     bool is_game_over() const
     {
-        return !player_can_place_any_piece(player()) &&
-            !player_can_place_any_piece(opposite(player()));
+        return !player_can_place_any_piece(player());
     }
 
     piece_color winner() const {
