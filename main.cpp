@@ -65,17 +65,16 @@ void print_othello_board(const othello::game &game, const othello::pos &lastpos)
 class human_strategy : public othello::strategy
 {
 public:
-    human_strategy(othello::piece_color color)
-        : othello::strategy(color)
+    human_strategy()
     {}
 
     string description() const override { return "human player"; }
 
-    othello::bitpos choose_piece_position(const othello::game &game, othello::positions possible_positions) override
+    othello::bitpos choose_piece_position(const othello::game &game, piece_color player, othello::positions possible_positions) override
     {
         othello::pos p;
         while (1) {
-            cout << "[" << to_symbol(game.player()) << "] play position: ";
+            cout << "[" << to_symbol(player) << "] play position: ";
 
             string s;
             getline(cin, s);
@@ -84,7 +83,7 @@ public:
                 continue;
             }
 
-            if (game.can_play(p.to_bitpos(), game.player()))
+            if (game.can_play(p.to_bitpos(), player))
                 break;
         }
         return p.to_bitpos();
@@ -100,10 +99,10 @@ public:
 struct strategy_index {
     // char index;
     const char * description;
-    std::function<othello::strategy*(othello::piece_color)> build;
+    std::function<othello::strategy*()> build;
 };
 
-#define STRATEGY_ROW(D, T) {D, [](othello::piece_color pc) { return new T(pc); }}
+#define STRATEGY_ROW(D, T) {D, []() { return new T(); }}
 
 static const vector<strategy_index> strategies = {
     STRATEGY_ROW("human player (default)", human_strategy),
@@ -117,7 +116,7 @@ std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color
 {
     if (index >= strategies.size())
         return nullptr;
-    return move(unique_ptr<othello::strategy>(strategies[index].build(color)));
+    return move(unique_ptr<othello::strategy>(strategies[index].build()));
 }
 
 function<void(const othello::pos &p)> make_logpos_from_filename(ofstream &file, string filename)

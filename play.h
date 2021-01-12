@@ -9,30 +9,22 @@ namespace othello {
 
 class strategy
 {
-private:
-    piece_color color;
-
 public:
-    strategy(piece_color color_=none)
-        : color(color_)
+    strategy()
     {}
 
     virtual std::string description() const = 0;
 
-    virtual void reset(piece_color color_) { color = color_; }
-
-    virtual bitpos choose_piece_position(const game &g, positions possible_positions) = 0;
-
-    piece_color player() const { return color; }
+    virtual bitpos choose_piece_position(const game &g, piece_color player, positions possible_positions) = 0;
 };
 
-bitpos play_player(strategy *s, game &g) {
-    assert(g.player() == s->player());
+bitpos play_player(strategy *s, piece_color player, game &g) {
+    assert(g.player() == player);
     
     auto possible_positions = g.possible_place_positions();
     assert(possible_positions.size() != 0);
 
-    bitpos p = s->choose_piece_position(g, possible_positions);
+    bitpos p = s->choose_piece_position(g, player, possible_positions);
     g.place_piece(p);
 
     return p;
@@ -44,18 +36,15 @@ piece_color play(game &game,
     std::function<void(const othello::game&, const othello::pos&)> showgame=nullptr,
     std::function<void(const pos&)> logpos=nullptr)
 {
-    strategy_black->reset(black);
-    strategy_white->reset(white);
-
     pos p = {-1, -1};
     while (!game.is_game_over()) {
         if (showgame) showgame(game, p);
         switch (game.player()) {
         case othello::black:
-            p = pos::from_bitpos(play_player(strategy_black, game));
+            p = pos::from_bitpos(play_player(strategy_black, black, game));
             break;
         case othello::white:
-            p = pos::from_bitpos(play_player(strategy_white, game));
+            p = pos::from_bitpos(play_player(strategy_white, white, game));
             break;
         default:
             break; // ignore
