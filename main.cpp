@@ -19,7 +19,7 @@ YELLOW   " Version: " VERSION "\n" RESET;
 string to_symbol(othello::piece_color pc, bool highlight=false)
 {
     if (highlight)
-        return pc == othello::white ? (BOLDRED " X" RESET) : (BOLDBLUE " O" RESET);
+        return pc == othello::white ? (BOLDYELLOW " X" RESET) : (BOLDCYAN " O" RESET);
     else
         return pc == othello::white ? (RED " X" RESET) : (BLUE " O" RESET);
 }
