@@ -97,26 +97,25 @@ public:
 };
 
 struct strategy_index {
-    // char index;
     const char * description;
-    std::function<othello::strategy*()> build;
+    othello::strategy* strat;
 };
 
-#define STRATEGY_ROW(D, T) {D, []() { return new T(); }}
+human_strategy human;
 
 static const vector<strategy_index> strategies = {
-    STRATEGY_ROW("human player (default)", human_strategy),
-    STRATEGY_ROW("random", othello::random_strategy),
-    STRATEGY_ROW("borders first", othello::random_strategy_with_borders_first),
-    STRATEGY_ROW("corners first", othello::random_strategy_with_corners_and_borders_first),
-    STRATEGY_ROW("minmax 4", othello::minmax_strategy)
+    {"human player (default)", &human},
+    {"random", &othello::strat::random},
+    {"borders first", &othello::strat::random_with_borders_first},
+    {"corners first", &othello::strat::random_with_borders_and_corners_first},
+    {"minmax 4", &othello::strat::minmax4}
 };
 
-std::unique_ptr<othello::strategy> make_strategy_from_index(othello::piece_color color, unsigned index)
+othello::strategy* make_strategy_from_index(othello::piece_color color, unsigned index)
 {
     if (index >= strategies.size())
         return nullptr;
-    return move(unique_ptr<othello::strategy>(strategies[index].build()));
+    return strategies[index].strat;
 }
 
 function<void(const othello::pos &p)> make_logpos_from_filename(ofstream &file, string filename)
@@ -214,11 +213,11 @@ int main(int argc, char* argv[])
 
     othello::game game;
     ofstream file;
-    unique_ptr<othello::strategy> strategy_black = make_strategy_from_index(othello::black, arg_black_strategy);
-    unique_ptr<othello::strategy> strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
+    strategy * strategy_black = make_strategy_from_index(othello::black, arg_black_strategy);
+    strategy * strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
     function<void(const othello::pos &p)> logpos = make_logpos_from_filename(file, arg_output_log_in_file);
 
-    auto winner = othello::play(game, strategy_black.get(), strategy_white.get(), &print_othello_board, logpos);
+    auto winner = othello::play(game, strategy_black, strategy_white, &print_othello_board, logpos);
     cout << endl << game_winner_message(winner) << endl;
     file.close();
 }
