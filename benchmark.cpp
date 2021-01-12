@@ -10,7 +10,7 @@
 using namespace std;
 using namespace othello;
 
-void benchmark_strategies(unsigned repeat, const vector<strategy *> &strategies)
+void benchmark_strategies(unsigned repeat, const vector<strat::strategy_index> &strategies)
 {
     auto winmatrix = winrate_matrix(strategies, repeat);
     auto acc_scores = accumulate_score(winmatrix);
@@ -44,26 +44,26 @@ void benchmark_strategies(unsigned repeat, const vector<strategy *> &strategies)
         auto label_color = (acc_scores[i] > avg_score) ? GREEN : RED;
         cout << RESET << "- "
             << label_color << acc_scores[i]
-            << RESET << '\t' << strategies[i]->description()
+            << RESET << '\t' << strategies[i].description
             << endl;
     }
     cout << "-----------------------------------------------\n";
     cout << "acccumulated scores:\n";
     for (unsigned i = 0; i < strategies.size(); i++)
-        cout << '\t' << acc_scores[i] << "\t - " << strategies[i]->description() << endl;
+        cout << '\t' << acc_scores[i] << "\t - " << strategies[i].description << endl;
 }
 
 void benchmark(unsigned repeat)
 {
 
-    vector<strategy *> strategies = {
-        &strat::random,
-        &strat::random_with_borders_first,
-        &strat::random_with_borders_and_corners_first,
-        &strat::max_pieces,
-        // &strat::max_liberty,
-        &strat::minmax2,
-        &strat::minmax4
+    vector<strat::strategy_index> strategies = {
+        {"random", &strat::random},
+        {"border 1st", &strat::random_with_borders_first},
+        {"corner 1st", &strat::random_with_borders_and_corners_first},
+        {"max # pieces", &strat::max_pieces},
+        {"max liberties", &strat::max_liberty},
+        {"minmax 2", &strat::minmax2},
+        {"minmax 4", &strat::minmax4}
     };
 
     benchmark_strategies(repeat, strategies);

@@ -68,8 +68,6 @@ public:
     human_strategy()
     {}
 
-    string description() const override { return "human player"; }
-
     othello::bitpos choose_piece_position(const othello::game &game, piece_color player, othello::positions possible_positions) override
     {
         othello::pos p;
@@ -96,14 +94,9 @@ public:
     }
 };
 
-struct strategy_index {
-    const char * description;
-    othello::strategy* strat;
-};
-
 human_strategy human;
 
-static const vector<strategy_index> strategies = {
+static const vector<othello::strat::strategy_index> strategies = {
     {"human player (default)", &human},
     {"random", &othello::strat::random},
     {"borders first", &othello::strat::random_with_borders_first},

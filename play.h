@@ -13,8 +13,6 @@ public:
     strategy()
     {}
 
-    virtual std::string description() const = 0;
-
     virtual bitpos choose_piece_position(const game &g, piece_color player, positions possible_positions) = 0;
 };
 

@@ -50,7 +50,7 @@ bool better_than(strategy *a, strategy *b, double eps=0, unsigned n=10)
     return winrate(a, b, n) >= 0.5 - eps;
 }
 
-std::vector<std::vector<double>> winrate_matrix(const std::vector<strategy *> &strategies, unsigned repeat=100)
+std::vector<std::vector<double>> winrate_matrix(const std::vector<strat::strategy_index> &strategies, unsigned repeat=100)
 {
     unsigned N = strategies.size();
 
@@ -63,7 +63,7 @@ std::vector<std::vector<double>> winrate_matrix(const std::vector<strategy *> &s
     // build an anti 1 - x symmetric matrix
     for (unsigned i = 0; i < N; i++) {
         for (unsigned j = i + 1; j < N; j++) {
-            double win = winrate(strategies[i], strategies[j], repeat);
+            double win = winrate(strategies[i].strat, strategies[j].strat, repeat);
             winrate_matrix[i][j] = win;
             winrate_matrix[j][i] = 1.0 - win;
         }

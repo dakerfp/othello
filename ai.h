@@ -14,8 +14,6 @@ namespace othello {
 class random_strategy : public strategy
 {
 public:
-    std::string description() const override { return "random"; }
-
     random_strategy()
     {}
 
@@ -32,8 +30,6 @@ public:
 class random_strategy_with_borders_first : public random_strategy
 {
 public:
-    std::string description() const override { return "random with borders first"; }
-
     random_strategy_with_borders_first()
     {}
 
@@ -52,8 +48,6 @@ public:
 class random_strategy_with_corners_and_borders_first : public random_strategy_with_borders_first
 {
 public:
-    std::string description() const override { return "random with corners and borders first"; }
-
     random_strategy_with_corners_and_borders_first()
     {}
 
@@ -79,8 +73,6 @@ protected:
     }
 
 public:
-    std::string description() const override { return "maximize score (" + score_f.description + ")"; }
-
     maximize_score_strategy(const score_function_register &score_function=pieces_diff_score)
         : score_f(score_function)
     {}
@@ -128,8 +120,6 @@ private:
         return final_score;
     }
 public:
-    std::string description() const override { return std::string("minmax ") + std::to_string(max_depth) + " (" + score_f.description + ")"; }
-
     minmax_strategy(int depth=6, const score_function_register &score_f=pieces_diff_score_with_borders_and_corners)
         : maximize_score_strategy(score_f), max_depth(depth)
     {}
@@ -150,15 +140,22 @@ public:
 };
 
 namespace strat {
-    random_strategy random;
-    random_strategy_with_borders_first random_with_borders_first;
-    random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
-    maximize_score_strategy max_pieces;
-    minmax_strategy minmax2(2);
-    minmax_strategy minmax4(4);
-    minmax_strategy minmax2corners(2, pieces_diff_score_with_borders_and_corners);
-    minmax_strategy minmax4corners(4, pieces_diff_score_with_borders_and_corners);
-    maximize_score_strategy max_liberty(maximize_possible_place_positions);
+
+random_strategy random;
+random_strategy_with_borders_first random_with_borders_first;
+random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
+maximize_score_strategy max_pieces;
+minmax_strategy minmax2(2);
+minmax_strategy minmax4(4);
+minmax_strategy minmax2corners(2, pieces_diff_score_with_borders_and_corners);
+minmax_strategy minmax4corners(4, pieces_diff_score_with_borders_and_corners);
+maximize_score_strategy max_liberty(maximize_possible_place_positions);
+
+struct strategy_index {
+    const char * description;
+    othello::strategy* strat;
+};
+
 }
 
 }
