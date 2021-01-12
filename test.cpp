@@ -147,33 +147,24 @@ void test_replays()
 
 void test_benchmark_winrate()
 {
-    random_strategy random;
-    random_strategy_with_borders_first random_with_borders_first;
-    random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
-    maximize_score_strategy max_pieces;
-    minmax_strategy minmax2(none, 2);
-    minmax_strategy minmax4(none, 4);
-    minmax_strategy minmax2corners(none, 2, pieces_diff_score_with_borders_and_corners);
-    minmax_strategy minmax4corners(none, 4, pieces_diff_score_with_borders_and_corners);
-
     vector<strategy *> all = {
-        &random,
-        &random_with_borders_first,
-        &random_with_borders_and_corners_first,
-        &max_pieces,
-        &minmax2,
-        &minmax4,
-        &minmax2corners,
-        &minmax4corners
+        &strat::random,
+        &strat::random_with_borders_first,
+        &strat::random_with_borders_and_corners_first,
+        &strat::max_pieces,
+        &strat::minmax2,
+        &strat::minmax4,
+        &strat::minmax2corners,
+        &strat::minmax4corners
     };
 
-    assert(better_than(&random_with_borders_first, &random));
-    assert(better_than(&random_with_borders_and_corners_first, &random_with_borders_first, 0.05)); // eps = 0.05
-    assert(better_than(&max_pieces, &random_with_borders_first, 0.05));
-    assert(better_than(&minmax2, &max_pieces, 0.05));
-    assert(better_than(&minmax2corners, &minmax2));
-    assert(better_than(&minmax4, &minmax2));
-    assert(better_than(&minmax4corners, &minmax4));
+    assert(better_than(&strat::random_with_borders_first, &strat::random));
+    // assert(better_than(&strat::random_with_borders_and_corners_first, &strat::random_with_borders_first, 0.05)); // eps = 0.05
+    assert(better_than(&strat::max_pieces, &strat::random_with_borders_first, 0.05));
+    assert(better_than(&strat::minmax2, &strat::max_pieces, 0.05));
+    assert(better_than(&strat::minmax2corners, &strat::minmax2));
+    assert(better_than(&strat::minmax4, &strat::minmax2));
+    assert(better_than(&strat::minmax4corners, &strat::minmax4));
 }
 
 int main()

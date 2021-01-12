@@ -53,28 +53,17 @@ void benchmark_strategies(unsigned repeat, const vector<strategy *> &strategies)
         cout << '\t' << acc_scores[i] << "\t - " << strategies[i]->description() << endl;
 }
 
-random_strategy random_s;
-random_strategy_with_borders_first random_with_borders_first;
-random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
-maximize_score_strategy max_pieces;
-maximize_score_strategy max_liberty(none, maximize_possible_place_positions);
-minmax_strategy minmax2(none, 2);
-minmax_strategy minmax4(none, 4);
-minmax_strategy minmax2corners(none, 2, pieces_diff_score_with_borders_and_corners);
-minmax_strategy minmax4corners(none, 4, pieces_diff_score_with_borders_and_corners);
-minmax_strategy minmax4cornersLiberty(none, 4, maximize_possible_place_positions);
-
 void benchmark(unsigned repeat)
 {
 
     vector<strategy *> strategies = {
-        &random_s,
-        &random_with_borders_first,
-        &random_with_borders_and_corners_first,
-        &max_pieces,
-        &max_liberty,
-        &minmax2,
-        &minmax4
+        &strat::random,
+        &strat::random_with_borders_first,
+        &strat::random_with_borders_and_corners_first,
+        &strat::max_pieces,
+        // &strat::max_liberty,
+        &strat::minmax2,
+        &strat::minmax4
     };
 
     benchmark_strategies(repeat, strategies);

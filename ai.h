@@ -152,6 +152,18 @@ public:
     }
 };
 
+namespace strat {
+    random_strategy random;
+    random_strategy_with_borders_first random_with_borders_first;
+    random_strategy_with_corners_and_borders_first random_with_borders_and_corners_first;
+    maximize_score_strategy max_pieces;
+    minmax_strategy minmax2(none, 2);
+    minmax_strategy minmax4(none, 4);
+    minmax_strategy minmax2corners(none, 2, pieces_diff_score_with_borders_and_corners);
+    minmax_strategy minmax4corners(none, 4, pieces_diff_score_with_borders_and_corners);
+    maximize_score_strategy max_liberty(none, maximize_possible_place_positions);
+}
+
 }
 
 #endif // OTHELO_AI_H
