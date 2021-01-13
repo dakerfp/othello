@@ -10,9 +10,9 @@
 using namespace std;
 
 const char * othello_billboard =
-RED      " _____ _   _       _ _     \n"
+BOLDRED  " _____ _   _       _ _     \n"
 BOLDRED  "|     | |_| |_ ___| | |___ \n"
-BLUE     "|  |  |  _|   | -_| | | . |\n"
+BOLDBLUE "|  |  |  _|   | -_| | | . |\n"
 BOLDBLUE "|_____|_| |_|_|___|_|_|___|\n"
 YELLOW   " Version: " VERSION "\n" RESET;
 
