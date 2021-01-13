@@ -1,4 +1,7 @@
+
 #include <algorithm>
+#include <cmath>
+#include <ctime>
 #include <functional>
 #include <fstream>
 #include <iostream>
@@ -195,6 +198,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    srand(time(nullptr));
     cout << othello_billboard << endl;
 
     othello::game game;
