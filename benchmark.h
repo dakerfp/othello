@@ -9,7 +9,6 @@
 
 #include "core.h"
 
-
 using namespace std;
 using namespace othello;
 

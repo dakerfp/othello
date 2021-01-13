@@ -4,9 +4,6 @@
 #include <iostream>
 
 #include "othello.h"
-#include "benchmark.h"
-#include "ai.h"
-#include "io.h"
 
 using namespace std;
 using namespace othello;

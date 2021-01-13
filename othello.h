@@ -5,7 +5,7 @@
 #include "core.h"
 #include "play.h"
 #include "score.h"
-#include "ai.h"
+#include "strategy.h"
 #include "io.h"
 #include "benchmark.h"
 
