@@ -42,15 +42,15 @@ bitpos random_strategy_with_corners_and_borders_first(const game &g, piece_color
     return random_strategy_with_borders_first(g, player, possible_positions);
 }
 
-strategy maximize_score_strategy(const score_function_register &score=pieces_diff_score)
+strategy maximize_score_strategy(score::function scoref=score::pieces_diff_score)
 {
-    return [&score](const game &o, piece_color player, positions possible_positions)
+    return [scoref](const game &o, piece_color player, positions possible_positions)
     {
         int max_score = INT_MIN;
         bitpos max_p = 0;
         for (bitpos p : possible_positions) {
             game g = o.test_piece(p);
-            int current_score = (player == white) ? score(g) : -score(g);
+            int current_score = (player == white) ? scoref(g) : -scoref(g);
             if (current_score > max_score) {
                 max_score = current_score;
                 max_p = p;
@@ -60,10 +60,10 @@ strategy maximize_score_strategy(const score_function_register &score=pieces_dif
     };
 }
 
-int minmax_score_game_state(const game &g, piece_color player, int depth, score_function_register score)
+int minmax_score_game_state(const game &g, piece_color player, int depth, const score::function score)
 {
     if (g.is_game_over())
-        return terminal_score(g, player);
+        return othello::score::terminal(g, player);
 
     if (depth <= 0)
         return (player == white) ? score(g) : -score(g);
@@ -81,14 +81,14 @@ int minmax_score_game_state(const game &g, piece_color player, int depth, score_
     return final_score;
 }
 
-strategy minmax_strategy(int max_depth, const score_function_register &score=pieces_diff_score)
+strategy minmax_strategy(int max_depth, score::function scoref=score::pieces_diff_score)
 {
-    return [&score, max_depth](const game &g, piece_color player, positions possible_positions)
+    return [scoref, max_depth](const game &g, piece_color player, positions possible_positions)
     {
         int max_score = INT_MIN;
         bitpos max_p = 0;
         for (bitpos p : possible_positions) {
-            int current_score = minmax_score_game_state(g.test_piece(p), player, max_depth, score);
+            int current_score = minmax_score_game_state(g.test_piece(p), player, max_depth, scoref);
             if (current_score >= max_score) {
                 max_score = current_score;
                 max_p = p;
@@ -102,9 +102,9 @@ strategy max_pieces = maximize_score_strategy();
 strategy minmax2 = minmax_strategy(2);
 strategy minmax4 = minmax_strategy(4);
 strategy minmax8 = minmax_strategy(8);
-strategy minmax2corners = minmax_strategy(2, pieces_diff_score_with_borders_and_corners);
-strategy minmax4corners = minmax_strategy(4, pieces_diff_score_with_borders_and_corners);
-strategy max_liberty = maximize_score_strategy(maximize_possible_place_positions);
+strategy minmax2corners = minmax_strategy(2, score::pieces_diff_with_borders_and_corners);
+strategy minmax4corners = minmax_strategy(4, score::pieces_diff_with_borders_and_corners);
+strategy max_liberty = maximize_score_strategy(score::possible_place_positions);
 
 struct strategy_index {
     const char * description;
