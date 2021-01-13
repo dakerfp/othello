@@ -277,7 +277,7 @@ public:
         case white: return popcount(whites & mask);
         case black: return popcount(blacks & mask);
         case none: return popcount(nones() & mask);
-        default: return popcount((whites | blacks) | mask);
+        default: return popcount((whites | blacks) & mask);
         }
     }
 };
