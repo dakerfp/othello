@@ -60,27 +60,6 @@ strategy maximize_score_strategy(score::function scoref=score::pieces_diff_score
     };
 }
 
-int minmax_score_game_state(const game &g, piece_color player, int depth, const score::function score)
-{
-    if (g.is_game_over())
-        return othello::score::terminal(g, player);
-
-    if (depth <= 0)
-        return (player == white) ? score(g) : -score(g);
-
-    bool maximize = g.player() == player;
-    int final_score = maximize ? INT_MIN : INT_MAX;
-    auto possible_places = g.possible_place_positions();
-    for (bitpos p : possible_places) {
-        int current_score = minmax_score_game_state(g.test_piece(p), player, depth - 1, score);
-        if (maximize)
-            final_score = std::max(final_score, current_score);
-        else
-            final_score = std::min(final_score, current_score);
-    }
-    return final_score;
-}
-
 strategy minmax_strategy(int max_depth, score::function scoref=score::pieces_diff_score)
 {
     return [scoref, max_depth](const game &g, piece_color player, positions possible_positions)
@@ -88,7 +67,8 @@ strategy minmax_strategy(int max_depth, score::function scoref=score::pieces_dif
         int max_score = INT_MIN;
         bitpos max_p = 0;
         for (bitpos p : possible_positions) {
-            int current_score = minmax_score_game_state(g.test_piece(p), player, max_depth, scoref);
+            int state_score = score::minmax_score_game_state(g.test_piece(p), max_depth, scoref);
+            int current_score = (player == white) ? state_score : -state_score;
             if (current_score >= max_score) {
                 max_score = current_score;
                 max_p = p;
@@ -105,6 +85,15 @@ strategy minmax8 = minmax_strategy(8);
 strategy minmax2corners = minmax_strategy(2, score::pieces_diff_with_borders_and_corners);
 strategy minmax4corners = minmax_strategy(4, score::pieces_diff_with_borders_and_corners);
 strategy max_liberty = maximize_score_strategy(score::possible_place_positions);
+
+template<int steps=8>
+bitpos start_random(const game &g, piece_color player, positions possible_positions)
+{
+    if (g.count<any>() <= steps)
+        return random_strategy(g, player, possible_positions);
+    else
+        return minmax4(g, player, possible_positions);
+}
 
 struct strategy_index {
     const char * description;

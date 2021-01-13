@@ -13,12 +13,12 @@ namespace othello::score {
 // The opposite applies to black - negative.
 typedef std::function<int(const game &)> function;
 
-int terminal(const game &g, piece_color player)
+int terminal(const game &g)
 {
     piece_color winner = g.winner();
-    if (winner == player)
+    if (winner == white)
         return INT_MAX;
-    if (winner == opposite(player))
+    if (winner == black)
         return INT_MIN;
     return 0;
 }
@@ -59,6 +59,27 @@ int pieces_diff_with_borders_and_corners(const game &g)
 int possible_place_positions(const game &g)
 {
     return possible_place_positions_(g, 6);
+}
+
+int minmax_score_game_state(const game &g, int depth, const score::function score)
+{
+    if (g.is_game_over())
+        return othello::score::terminal(g);
+
+    if (depth <= 0)
+        return score(g);
+
+    bool maximize = g.player() == white;
+    int final_score = maximize ? INT_MIN : INT_MAX;
+    auto possible_places = g.possible_place_positions();
+    for (bitpos p : possible_places) {
+        int current_score = minmax_score_game_state(g.test_piece(p), depth - 1, score);
+        if (maximize)
+            final_score = std::max(final_score, current_score);
+        else
+            final_score = std::min(final_score, current_score);
+    }
+    return final_score;
 }
 
 }

@@ -97,6 +97,7 @@ static const vector<othello::strat::strategy_index> strategies = {
     {"corners first", othello::strat::random_strategy_with_corners_and_borders_first},
     {"minmax 2", othello::strat::minmax2},
     {"minmax 4", othello::strat::minmax4},
+    {"difficult", othello::strat::start_random},
     {"minmax 8", othello::strat::minmax8}
 };
 
