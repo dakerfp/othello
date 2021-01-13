@@ -13,7 +13,7 @@
 using namespace std;
 using namespace othello;
 
-double wincount(strategy *strategy_black, strategy *strategy_white, unsigned n)
+double wincount(strategy strategy_black, strategy strategy_white, unsigned n)
 {
     game game;
     double wins = 0;
@@ -35,7 +35,7 @@ double wincount(strategy *strategy_black, strategy *strategy_white, unsigned n)
     return wins;
 }
 
-double winrate(strategy *a, strategy *b, unsigned n)
+double winrate(strategy a, strategy b, unsigned n)
 {
     assert(n % 2 == 0);
 
@@ -45,7 +45,7 @@ double winrate(strategy *a, strategy *b, unsigned n)
     return (win_as_whites + win_as_blacks) / n;
 }
 
-bool better_than(strategy *a, strategy *b, double eps=0, unsigned n=10)
+bool better_than(strategy a, strategy b, double eps=0, unsigned n=10)
 {
     return winrate(a, b, n) >= 0.5 - eps;
 }

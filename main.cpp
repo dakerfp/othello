@@ -62,49 +62,42 @@ void print_othello_board(const othello::game &game, const othello::pos &lastpos)
     cout << endl;
 }
 
-class human_strategy : public othello::strategy
+void parse_command(string s, const othello::game &game) {
+    if (s == "snapshot" || s == "snap") {
+        cout << io::to_string(game) << endl;
+    }
+}
+
+othello::bitpos human_strategy(const othello::game &game, piece_color player, othello::positions possible_positions)
 {
-public:
-    human_strategy()
-    {}
+    othello::pos p;
+    while (1) {
+        cout << "[" << to_symbol(player) << "] play position: ";
 
-    othello::bitpos choose_piece_position(const othello::game &game, piece_color player, othello::positions possible_positions) override
-    {
-        othello::pos p;
-        while (1) {
-            cout << "[" << to_symbol(player) << "] play position: ";
-
-            string s;
-            getline(cin, s);
-            if (!othello::io::parse_pos(s, p)) {
-                parse_command(s, game);
-                continue;
-            }
-
-            if (game.can_play(p.to_bitpos(), player))
-                break;
+        string s;
+        getline(cin, s);
+        if (!othello::io::parse_pos(s, p)) {
+            parse_command(s, game);
+            continue;
         }
-        return p.to_bitpos();
-    }
 
-    void parse_command(string s, const othello::game &game) {
-        if (s == "snapshot" || s == "snap") {
-            cout << io::to_string(game) << endl;
-        }
+        if (game.can_play(p.to_bitpos(), player))
+            break;
     }
-};
-
-human_strategy human;
+    return p.to_bitpos();
+}
 
 static const vector<othello::strat::strategy_index> strategies = {
-    {"human player (default)", &human},
-    {"random", &othello::strat::random},
-    {"borders first", &othello::strat::random_with_borders_first},
-    {"corners first", &othello::strat::random_with_borders_and_corners_first},
-    {"minmax 4", &othello::strat::minmax4}
+    {"human player (default)", human_strategy},
+    {"random", othello::strat::random_strategy},
+    {"borders first", othello::strat::random_strategy_with_borders_first},
+    {"corners first", othello::strat::random_strategy_with_corners_and_borders_first},
+    {"minmax 2", othello::strat::minmax2},
+    {"minmax 4", othello::strat::minmax4},
+    {"minmax 8", othello::strat::minmax8}
 };
 
-othello::strategy* make_strategy_from_index(othello::piece_color color, unsigned index)
+othello::strategy make_strategy_from_index(othello::piece_color color, unsigned index)
 {
     if (index >= strategies.size())
         return nullptr;
@@ -206,8 +199,8 @@ int main(int argc, char* argv[])
 
     othello::game game;
     ofstream file;
-    strategy * strategy_black = make_strategy_from_index(othello::black, arg_black_strategy);
-    strategy * strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
+    strategy strategy_black = make_strategy_from_index(othello::black, arg_black_strategy);
+    strategy strategy_white = make_strategy_from_index(othello::white, arg_white_strategy);
     function<void(const othello::pos &p)> logpos = make_logpos_from_filename(file, arg_output_log_in_file);
 
     auto winner = othello::play(game, strategy_black, strategy_white, &print_othello_board, logpos);

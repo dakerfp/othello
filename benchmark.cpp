@@ -57,13 +57,13 @@ void benchmark(unsigned repeat)
 {
 
     vector<strat::strategy_index> strategies = {
-        {"random", &strat::random},
-        {"border 1st", &strat::random_with_borders_first},
-        {"corner 1st", &strat::random_with_borders_and_corners_first},
-        {"max # pieces", &strat::max_pieces},
-        {"max liberties", &strat::max_liberty},
-        {"minmax 2", &strat::minmax2},
-        {"minmax 4", &strat::minmax4}
+        {"random", strat::random_strategy},
+        {"border 1st", strat::random_strategy_with_borders_first},
+        {"corner 1st", strat::random_strategy_with_corners_and_borders_first},
+        {"max # pieces", strat::max_pieces},
+        {"max liberties", strat::max_liberty},
+        {"minmax 2", strat::minmax2},
+        {"minmax 4", strat::minmax4}
     };
 
     benchmark_strategies(repeat, strategies);

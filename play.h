@@ -7,30 +7,23 @@
 
 namespace othello {
 
-class strategy
-{
-public:
-    strategy()
-    {}
+using strategy = std::function<bitpos(const game &, piece_color, positions)>;
 
-    virtual bitpos choose_piece_position(const game &g, piece_color player, positions possible_positions) = 0;
-};
-
-bitpos play_player(strategy *s, piece_color player, game &g) {
+bitpos play_player(strategy strat, piece_color player, game &g) {
     assert(g.player() == player);
     
     auto possible_positions = g.possible_place_positions();
     assert(possible_positions.size() != 0);
 
-    bitpos p = s->choose_piece_position(g, player, possible_positions);
+    bitpos p = strat(g, player, possible_positions);
     g.place_piece(p);
 
     return p;
 }
 
 piece_color play(game &game,
-    strategy * strategy_black,
-    strategy * strategy_white,
+    strategy strategy_black,
+    strategy strategy_white,
     std::function<void(const othello::game&, const othello::pos&)> showgame=nullptr,
     std::function<void(const pos&)> logpos=nullptr)
 {

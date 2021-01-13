@@ -147,24 +147,26 @@ void test_replays()
 
 void test_benchmark_winrate()
 {
-    vector<strategy *> all = {
-        &strat::random,
-        &strat::random_with_borders_first,
-        &strat::random_with_borders_and_corners_first,
-        &strat::max_pieces,
-        &strat::minmax2,
-        &strat::minmax4,
-        &strat::minmax2corners,
-        &strat::minmax4corners
+    vector<strategy> all = {
+        strat::random_strategy,
+        strat::random_strategy_with_borders_first,
+        strat::random_strategy_with_corners_and_borders_first,
+        strat::max_pieces,
+        strat::minmax2
+        // &strat::minmax4,
+        // &strat::minmax2corners,
+        // &strat::minmax4corners
     };
 
-    assert(better_than(&strat::random_with_borders_first, &strat::random));
-    // assert(better_than(&strat::random_with_borders_and_corners_first, &strat::random_with_borders_first, 0.05)); // eps = 0.05
-    assert(better_than(&strat::max_pieces, &strat::random_with_borders_first, 0.05));
-    assert(better_than(&strat::minmax2, &strat::max_pieces, 0.05));
-    assert(better_than(&strat::minmax2corners, &strat::minmax2));
-    assert(better_than(&strat::minmax4, &strat::minmax2));
-    assert(better_than(&strat::minmax4corners, &strat::minmax4));
+    assert(better_than(strat::random_strategy_with_borders_first,
+        strat::random_strategy));
+    // assert(better_than(strat::random_strategy_with_corners_and_borders_first,
+    //     strat::random_strategy_with_borders_first, 0.05)); // eps = 0.05
+    assert(better_than(strat::max_pieces, strat::random_strategy_with_borders_first, 0.05));
+    assert(better_than(strat::minmax2, strat::max_pieces, 0.05));
+    assert(better_than(strat::minmax2corners, strat::minmax2));
+    assert(better_than(strat::minmax4, strat::minmax2));
+    assert(better_than(strat::minmax4corners, strat::minmax4));
 }
 
 int main()
